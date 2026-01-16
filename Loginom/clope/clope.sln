@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.11.35327.3
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "clope", "clope.csproj", "{0F5E22F4-95C2-49AF-AE93-265A9FD93D4D}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{0F5E22F4-95C2-49AF-AE93-265A9FD93D4D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0F5E22F4-95C2-49AF-AE93-265A9FD93D4D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0F5E22F4-95C2-49AF-AE93-265A9FD93D4D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0F5E22F4-95C2-49AF-AE93-265A9FD93D4D}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {D95C1A8E-902D-442B-813F-AED8631C6181}
+	EndGlobalSection
+EndGlobal

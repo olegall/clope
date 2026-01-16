@@ -1,46 +1,40 @@
-﻿// See https://aka.ms/new-console-template for more information
-using System.Collections.Generic;
-using System.Linq;
-using System.Net.WebSockets;
+﻿IEnumerable<char[]> transactions = [['a', 'b'], ['a', 'b', 'c'], ['a', 'c', 'd'], ['d', 'e'], ['d', 'e', 'f']];
 
-Console.WriteLine("Hello, World!");
-
-var a = new[] { 'a', 'b' };
-
-//var a1 = new List<IEnumerable<char>> { new[] { 'a', 'b' }, new[] { 'a', 'b', 'c' }, new[] { 'a', 'c', 'd' }, new[] { 'd', 'e' }, new[] { 'd', 'e', 'f' } };
-var transactions = new[] {
-    new[] { 'a', 'b' }, new[] { 'a', 'b', 'c' }, new[] { 'a', 'c', 'd' }, new[] { 'd', 'e' }, new[] { 'd', 'e', 'f' } // транзакции
-};
-
-IEnumerable<IEnumerable<char>> transactions_short = [
-    [ 'a', 'b' ], [ 'a', 'b', 'c' ] // транзакции
+IEnumerable<IEnumerable<char[]>> clustersOutput = 
+[
+    [ [ 'a', 'b' ], [ 'a', 'b', 'c' ], [ 'a', 'c', 'd' ] ], // кластер 1
+    [ [ 'd', 'e' ], [ 'd', 'e', 'f' ] ] // кластер 2
 ];
-
-var output = new[] {
-    new[] { new[] { 'a', 'b' }, new[] { 'a', 'b', 'c' }, new[] { 'a', 'c', 'd' } }, // кластер 1
-    new[] { new[] { 'd', 'e' }, new[] { 'd', 'e', 'f' } } // кластер 2
-};
 
 var result = clusterize(transactions);
 var debug = 0;
 List<List<TTransaction>> clusterize<TTransaction>(IEnumerable<TTransaction> transactions) where TTransaction: IEnumerable<char>
 {
     var clusters = new List<List<TTransaction>>();
+    
     foreach (var tr in transactions)
     {
         if (clusters.Count == 0) {
-            var cluster = new List<TTransaction>(); // List<List
-            cluster.Add(tr);
-            clusters.Add(cluster);
+            var cl = new List<TTransaction>();
+            cl.Add(tr);
+            clusters.Add(cl);
             continue;
         }
 
-        for (var i = 0; i < clusters.Count-1; i++)
+        for (var i = 0; i < clusters.Count; i++)
         {
-            if (clusters.ElementAt(i).Any(x => x.Intersect(tr).Count() > 1)) // clusters.ElementAt(i) - транзакции
-                clusters.ElementAt(i).Add(tr);
-            else 
-                clusters.ElementAt(i+1).Add(tr);
+            var trsInCluster = clusters.ElementAt(i); // кластер, набор транзакций
+            if (trsInCluster.Any(x => x.Intersect(tr).Count() > 1)) // > k .All
+            {
+                trsInCluster.Add(tr);
+            }
+            else
+            {
+                var cl = new List<TTransaction>();
+                cl.Add(tr);
+                clusters.Add(cl);
+            }
+            // i = 0; continue;
         }
     }
     return clusters;

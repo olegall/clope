@@ -20,7 +20,6 @@ List<List<TTransaction>> clusterize<TTransaction>(IEnumerable<TTransaction> tran
             clusters.Add(cl);
             continue;
         }
-
         for (var i = 0; i < clusters.Count; i++)
         {
             var trsInCluster = clusters.ElementAt(i); // кластер, набор транзакций
@@ -38,6 +37,37 @@ List<List<TTransaction>> clusterize<TTransaction>(IEnumerable<TTransaction> tran
         }
     }
     return clusters;
+}
+
+IEnumerable<char[]> transactions2 = [['a', 'c', 'd']];
+var result2 = clusterize2<IList<char>>(transactions2);
+List<List<TTransaction>> clusterize2<TTransaction>(TTransaction[] transactions) where TTransaction : IList<char>, new()
+{
+    List<List<TTransaction>> clusters =
+    [
+        [ [ 'a', 'b' ], [ 'a', 'b', 'c' ] ], // кластер 1
+        [ [ 'd', 'e' ], [ 'd', 'e', 'f' ] ] // кластер 2
+    ];
+
+    foreach (var tr in transactions)
+    {
+        var ih = new Dictionary<double, int>();
+        for (var i = 0; i < clusters.Count; i++)
+        {
+            var h = GetH(clusters[i], tr);
+            ih.Add(h, i);
+        }
+        var maxH = ih.Select(x => x.Key).Max();
+        var i_ = ih[maxH];
+        clusters[i_].Add(tr);
+    }
+    return clusters;
+}
+
+double GetH<TTransaction>(IList<TTransaction> cluster, TTransaction transactionToCluster) where TTransaction : IEnumerable<char>
+{
+    var trs = cluster.Select(x => x);
+    return 0;
 }
 
 //List<TCluster> clusterize<TCluster>(TCluster transactions) where TCluster : IEnumerable<IEnumerable<char>>, new()

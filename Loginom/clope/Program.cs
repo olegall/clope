@@ -40,10 +40,10 @@ List<List<TTransaction>> clusterize<TTransaction>(IEnumerable<TTransaction> tran
 }
 
 IEnumerable<char[]> transactions2 = [['a', 'c', 'd']];
-var result2 = clusterize2<IList<char>>(transactions2);
-List<List<TTransaction>> clusterize2<TTransaction>(TTransaction[] transactions) where TTransaction : IList<char>, new()
+var result2 = clusterize2(transactions2);
+List<List<char[]>> clusterize2(IEnumerable<char[]> transactions)
 {
-    List<List<TTransaction>> clusters =
+    List<List<char[]>> clusters =
     [
         [ [ 'a', 'b' ], [ 'a', 'b', 'c' ] ], // кластер 1
         [ [ 'd', 'e' ], [ 'd', 'e', 'f' ] ] // кластер 2
@@ -51,23 +51,26 @@ List<List<TTransaction>> clusterize2<TTransaction>(TTransaction[] transactions) 
 
     foreach (var tr in transactions)
     {
-        var ih = new Dictionary<double, int>();
+        var Hi = new Dictionary<double, int>();
         for (var i = 0; i < clusters.Count; i++)
         {
-            var h = GetH(clusters[i], tr);
-            ih.Add(h, i);
+            var H = GetH(clusters[i], tr);
+            Hi.Add(H, i);
         }
-        var maxH = ih.Select(x => x.Key).Max();
-        var i_ = ih[maxH];
+        var maxH = Hi.Select(x => x.Key).Max();
+        var i_ = Hi[maxH];
         clusters[i_].Add(tr);
     }
     return clusters;
 }
 
-double GetH<TTransaction>(IList<TTransaction> cluster, TTransaction transactionToCluster) where TTransaction : IEnumerable<char>
+double GetH(IList<char[]> cluster, char[] transactionToCluster)
 {
-    var trs = cluster.Select(x => x);
-    return 0;
+    var trs = cluster.SelectMany(x => x).Concat(transactionToCluster);
+    var grouped = trs.GroupBy(x => x);
+    var W = grouped.Count();
+    var S = trs.Count();
+    return S/W;
 }
 
 //List<TCluster> clusterize<TCluster>(TCluster transactions) where TCluster : IEnumerable<IEnumerable<char>>, new()

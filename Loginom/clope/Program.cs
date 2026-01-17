@@ -1,4 +1,5 @@
 ﻿IEnumerable<char[]> transactions = [['a', 'b'], ['a', 'b', 'c'], ['a', 'c', 'd'], ['d', 'e'], ['d', 'e', 'f']];
+//IEnumerable<char[]> transactions = [['a', 'b'], ['a', 'b', 'c'], ['a', 'c', 'd'], ['v', 'w'], ['x', 'y', 'z']];
 
 IEnumerable<IEnumerable<char[]>> clustersOutput = 
 [
@@ -39,7 +40,7 @@ List<List<TTransaction>> clusterize<TTransaction>(IEnumerable<TTransaction> tran
     return clusters;
 }
 
-IEnumerable<char[]> transactions2 = [['a', 'c', 'd']];
+IEnumerable<char[]> transactions2 = [['a', 'c', 'd'], ['a', 'd', 'e'], ['e', 'f'], /*['y', 'z']*/];
 var result2 = clusterize2(transactions2);
 List<List<char[]>> clusterize2(IEnumerable<char[]> transactions)
 {
@@ -48,14 +49,32 @@ List<List<char[]>> clusterize2(IEnumerable<char[]> transactions)
         [ [ 'a', 'b' ], [ 'a', 'b', 'c' ] ], // кластер 1
         [ [ 'd', 'e' ], [ 'd', 'e', 'f' ] ] // кластер 2
     ];
+    //var clusters = new List<List<char[]>>();
 
     foreach (var tr in transactions)
     {
+        //if (clusters.Count == 0)
+        //{
+        //    var cl = new List<char[]>();
+        //    cl.Add(tr);
+        //    clusters.Add(cl);
+        //    continue;
+        //}
+
         var Hi = new Dictionary<double, int>();
         for (var i = 0; i < clusters.Count; i++)
         {
             var H = GetH(clusters[i], tr);
-            Hi.Add(H, i);
+
+            //if (H < 1.5)
+            //{
+            //    var cl = new List<char[]>();
+            //    cl.Add(tr);
+            //    clusters.Add(cl);
+            //    continue;
+            //}
+
+            Hi.TryAdd(H, i);
         }
         var maxH = Hi.Select(x => x.Key).Max();
         var i_ = Hi[maxH];
@@ -70,7 +89,7 @@ double GetH(IList<char[]> cluster, char[] transactionToCluster)
     var grouped = trs.GroupBy(x => x);
     var W = grouped.Count();
     var S = trs.Count();
-    return S/W;
+    return (double)S/W;
 }
 
 //List<TCluster> clusterize<TCluster>(TCluster transactions) where TCluster : IEnumerable<IEnumerable<char>>, new()

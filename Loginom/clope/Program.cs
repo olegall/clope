@@ -40,21 +40,31 @@ List<List<TTransaction>> clusterize<TTransaction>(IEnumerable<TTransaction> tran
     return clusters;
 }
 
-//IEnumerable<char[]> transactions2 = [['a', 'c', 'd'], /*['a', 'd', 'e'],*/ ['e', 'f'], /*['y', 'z']*/];
-IEnumerable<char[]> transactions2 = [['y', 'z'], ['a', 'c', 'd']];
+//IEnumerable<char[]> transactions2 = [['a', 'b'], ['a', 'b', 'c'], ['a', 'c', 'd'], ['d', 'e'], ['d', 'e', 'f']];
+IEnumerable<char[]> transactions2 = [['a', 'b'], ['a', 'b', 'c'], ['d', 'e'], ['d', 'e', 'f']]; // рабит
+//IEnumerable<char[]> transactions2 = [['a', 'c', 'd'], ['a', 'd', 'e'], ['x'], ['y', 'z']]; // рабит
+//IEnumerable<char[]> transactions2 = [['y', 'z'], ['a', 'c', 'd']];
 //IEnumerable<char[]> transactions2 = [['a', 'c', 'd'], ['y', 'z']];
-var result2 = clusterize2(transactions2);
-List<List<char[]>> clusterize2(IEnumerable<char[]> transactions)
+var result2 = clusterize2(transactions2.ToList());
+List<List<char[]>> clusterize2(List<char[]> transactions)
 {
-    List<List<char[]>> clusters =
-    [
-        [[ 'a', 'b' ], [ 'a', 'b', 'c' ]], // кластер 1
-        [[ 'd', 'e' ], [ 'd', 'e', 'f' ]] // кластер 2
-    ];
-    //var clusters = new List<List<char[]>>();
+    #region
+    //List<List<char[]>> clusters =
+    //[
+    //    [[ 'a', 'b' ], [ 'a', 'b', 'c' ]], // кластер 1
+    //    [[ 'd', 'e' ], [ 'd', 'e', 'f' ]] // кластер 2
+    //];
+    #endregion
+    var clusters = new List<List<char[]>>();
+    
+    var cl_ = new List<char[]>();
+    cl_.Add(transactions[0]);
+    clusters.Add(cl_);
+    transactions.RemoveAt(0);
 
     foreach (var tr in transactions)
     {
+        #region
         //if (clusters.Count == 0)
         //{
         //    var cl = new List<char[]>();
@@ -62,12 +72,13 @@ List<List<char[]>> clusterize2(IEnumerable<char[]> transactions)
         //    clusters.Add(cl);
         //    continue;
         //}
+        #endregion
         var Hi = new Dictionary<double, int>();
         for (var i = 0; i < clusters.Count; i++)
         {
             var H = GetH(clusters[i], tr);
 
-            if (H < 1.7)
+            if (H < 1.5)
             {
                 if (i == clusters.Count - 1)
                 {
@@ -95,7 +106,7 @@ List<List<char[]>> clusterize2(IEnumerable<char[]> transactions)
     return clusters;
 }
 
-double GetH(IList<char[]> cluster, char[] transactionToCluster)
+double GetH(IList<char[]> cluster, char[] transactionToCluster) // не учитываются вхождения a:3,b:2,c:2,d:1
 {
     var trs = cluster.SelectMany(x => x).Concat(transactionToCluster);
     var grouped = trs.GroupBy(x => x);

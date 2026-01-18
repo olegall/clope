@@ -40,14 +40,16 @@ List<List<TTransaction>> clusterize<TTransaction>(IEnumerable<TTransaction> tran
     return clusters;
 }
 
-IEnumerable<char[]> transactions2 = [['a', 'c', 'd'], ['a', 'd', 'e'], ['e', 'f'], /*['y', 'z']*/];
+//IEnumerable<char[]> transactions2 = [['a', 'c', 'd'], /*['a', 'd', 'e'],*/ ['e', 'f'], /*['y', 'z']*/];
+IEnumerable<char[]> transactions2 = [['y', 'z'], ['a', 'c', 'd']];
+//IEnumerable<char[]> transactions2 = [['a', 'c', 'd'], ['y', 'z']];
 var result2 = clusterize2(transactions2);
 List<List<char[]>> clusterize2(IEnumerable<char[]> transactions)
 {
     List<List<char[]>> clusters =
     [
-        [ [ 'a', 'b' ], [ 'a', 'b', 'c' ] ], // кластер 1
-        [ [ 'd', 'e' ], [ 'd', 'e', 'f' ] ] // кластер 2
+        [[ 'a', 'b' ], [ 'a', 'b', 'c' ]], // кластер 1
+        [[ 'd', 'e' ], [ 'd', 'e', 'f' ]] // кластер 2
     ];
     //var clusters = new List<List<char[]>>();
 
@@ -60,25 +62,35 @@ List<List<char[]>> clusterize2(IEnumerable<char[]> transactions)
         //    clusters.Add(cl);
         //    continue;
         //}
-
         var Hi = new Dictionary<double, int>();
         for (var i = 0; i < clusters.Count; i++)
         {
             var H = GetH(clusters[i], tr);
 
-            //if (H < 1.5)
-            //{
-            //    var cl = new List<char[]>();
-            //    cl.Add(tr);
-            //    clusters.Add(cl);
-            //    continue;
-            //}
-
-            Hi.TryAdd(H, i);
+            if (H < 1.7)
+            {
+                if (i == clusters.Count - 1)
+                {
+                    var cl = new List<char[]>();
+                    cl.Add(tr);
+                    clusters.Add(cl);
+                    break;
+                }
+                continue;
+            }
+            else
+            {
+                Hi.TryAdd(H, i);
+                break;
+            }
         }
-        var maxH = Hi.Select(x => x.Key).Max();
-        var i_ = Hi[maxH];
-        clusters[i_].Add(tr);
+
+        if (Hi.Count > 0)
+        {
+            var maxH = Hi.Select(x => x.Key).Max();
+            var i_ = Hi[maxH];
+            clusters[i_].Add(tr);
+        }
     }
     return clusters;
 }

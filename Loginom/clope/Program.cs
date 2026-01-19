@@ -41,12 +41,12 @@ List<List<TTransaction>> clusterize<TTransaction>(IEnumerable<TTransaction> tran
 }
 
 //IEnumerable<char[]> transactions2 = [['a', 'b'], ['a', 'b', 'c'], ['a', 'c', 'd'], ['d', 'e'], ['d', 'e', 'f']];
-IEnumerable<char[]> transactions2 = [['a', 'b'], ['a', 'b', 'c'], ['d', 'e'], ['d', 'e', 'f']]; // рабит
-//IEnumerable<char[]> transactions2 = [['a', 'c', 'd'], ['a', 'd', 'e'], ['x'], ['y', 'z']]; // рабит
+IEnumerable<char[]> transactions2 = [['a', 'b'], ['a', 'b', 'c'], ['d', 'e'], ['d', 'e', 'f']]; // рабит, 2 кластера H:1.5 G:0.3
+//IEnumerable<char[]> transactions2 = [['a', 'c', 'd'], ['a', 'd', 'e'], ['x'], ['y', 'z']]; // рабит, 3 кластера H:1.5 G:0.3-неточно
 //IEnumerable<char[]> transactions2 = [['y', 'z'], ['a', 'c', 'd']];
 //IEnumerable<char[]> transactions2 = [['a', 'c', 'd'], ['y', 'z']];
-var result2 = clusterize2(transactions2.ToList());
-List<List<char[]>> clusterize2(List<char[]> transactions)
+var result2 = clusterize2(transactions2.ToList(), 0.3);
+List<List<char[]>> clusterize2(List<char[]> transactions, double r)
 {
     #region
     //List<List<char[]>> clusters =
@@ -76,9 +76,9 @@ List<List<char[]>> clusterize2(List<char[]> transactions)
         var Hi = new Dictionary<double, int>();
         for (var i = 0; i < clusters.Count; i++)
         {
-            var H = GetH(clusters[i], tr);
+            var H = GetG(clusters[i], tr);
 
-            if (H < 1.5)
+            if (H < r)
             {
                 if (i == clusters.Count - 1)
                 {
@@ -106,13 +106,13 @@ List<List<char[]>> clusterize2(List<char[]> transactions)
     return clusters;
 }
 
-double GetH(IList<char[]> cluster, char[] transactionToCluster) // не учитываются вхождения a:3,b:2,c:2,d:1
+double GetG(IList<char[]> cluster, char[] transactionToCluster) // не учитываются вхождения a:3,b:2,c:2,d:1
 {
     var trs = cluster.SelectMany(x => x).Concat(transactionToCluster);
     var grouped = trs.GroupBy(x => x);
     var W = grouped.Count();
     var S = trs.Count();
-    return (double)S/W;
+    return (double)S/(W*W);
 }
 
 //List<TCluster> clusterize<TCluster>(TCluster transactions) where TCluster : IEnumerable<IEnumerable<char>>, new()

@@ -1,4 +1,6 @@
-﻿IEnumerable<char[]> transactions = [['a', 'b'], ['a', 'b', 'c'], ['a', 'c', 'd'], ['d', 'e'], ['d', 'e', 'f']];
+﻿using clope;
+
+IEnumerable<char[]> transactions = [['a', 'b'], ['a', 'b', 'c'], ['a', 'c', 'd'], ['d', 'e'], ['d', 'e', 'f']];
 //IEnumerable<char[]> transactions = [['a', 'b'], ['a', 'b', 'c'], ['a', 'c', 'd'], ['v', 'w'], ['x', 'y', 'z']];
 
 IEnumerable<IEnumerable<char[]>> clustersOutput = 
@@ -45,60 +47,8 @@ List<List<TTransaction>> clusterize<TTransaction>(IEnumerable<TTransaction> tran
 IEnumerable<char[]> transactions2 = [['a', 'c', 'd'], ['a', 'd', 'e'], ['x'], ['y', 'z']]; // рабит, 2 кластера H:1.5 G:0.3-неточно
 //IEnumerable<char[]> transactions2 = [['y', 'z'], ['a', 'c', 'd']];
 //IEnumerable<char[]> transactions2 = [['a', 'c', 'd'], ['y', 'z']];
-var result2 = clusterize2(transactions2.ToList(), 0.3);
-List<List<char[]>> clusterize2(List<char[]> transactions, double r)
-{
-    var clusters = new List<List<char[]>>();
-    AddNewCluster(clusters, transactions[0]);
-    transactions.RemoveAt(0);
-
-    foreach (var tr in transactions)
-    {
-        var indexes = new Dictionary<double, int>();
-        for (var i = 0; i < clusters.Count; i++)
-        {
-            var G = GetGradient(clusters[i], tr);
-
-            if (G < r)
-            {
-                if (i == clusters.Count - 1)
-                {
-                    AddNewCluster(clusters, tr);
-                    break;
-                }
-                continue;
-            }
-            else
-            {
-                indexes.TryAdd(G, i);
-                break;
-            }
-        }
-
-        if (indexes.Count > 0)
-        {
-            var maxG = indexes.Select(x => x.Key).Max();
-            var idx = indexes[maxG];
-            clusters[idx].Add(tr);
-        }
-    }
-    return clusters;
-}
-
-void AddNewCluster(List<List<char[]>> clusters, char[] transaction)
-{
-    var cl = new List<char[]>();
-    cl.Add(transaction);
-    clusters.Add(cl);
-}
-
-double GetGradient(IEnumerable<char[]> cluster, char[] transaction) // не учитываются вхождения a:3,b:2,c:2,d:1
-{
-    var transactions = cluster.SelectMany(x => x).Concat(transaction);
-    var W = transactions.GroupBy(x => x).Count();
-    var S = transactions.Count();
-    return (double)S/(W*W);
-}
+var result2 = new Clope<char[]>().Clusterize(transactions2.ToList(), 0.3);
+var break_ = 0;
 
 //List<TCluster> clusterize<TCluster>(TCluster transactions) where TCluster : IEnumerable<IEnumerable<char>>, new()
 //{

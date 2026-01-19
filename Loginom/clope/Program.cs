@@ -47,7 +47,7 @@ List<List<TTransaction>> clusterize<TTransaction>(IEnumerable<TTransaction> tran
 IEnumerable<char[]> transactions2 = [['a', 'c', 'd'], ['a', 'd', 'e'], ['x'], ['y', 'z']]; // рабит, 2 кластера H:1.5 G:0.3-неточно
 //IEnumerable<char[]> transactions2 = [['y', 'z'], ['a', 'c', 'd']];
 //IEnumerable<char[]> transactions2 = [['a', 'c', 'd'], ['y', 'z']];
-var result2 = new Clope<char[]>().Clusterize(transactions2.ToList(), 0.3);
+var result2 = new Clope<char[], List<char[]>>().Clusterize(transactions2.ToList(), 0.3);
 var break_ = 0;
 
 //List<TCluster> clusterize<TCluster>(TCluster transactions) where TCluster : IEnumerable<IEnumerable<char>>, new()

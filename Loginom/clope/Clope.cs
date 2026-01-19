@@ -1,10 +1,10 @@
 ﻿namespace clope;
 
-internal class Clope<TTransaction> where TTransaction : IEnumerable<char>
+internal class Clope<TTransaction, TCluster> where TTransaction : IEnumerable<char> where TCluster : List<TTransaction>, new()
 {
-    public List<List<TTransaction>> Clusterize(List<TTransaction> transactions, double r)
+    public List<TCluster> Clusterize(TCluster transactions, double r)
     {
-        var clusters = new List<List<TTransaction>>();
+        var clusters = new List<TCluster>();
         AddNewCluster(clusters, transactions[0]);
         transactions.RemoveAt(0);
 
@@ -41,14 +41,14 @@ internal class Clope<TTransaction> where TTransaction : IEnumerable<char>
         return clusters;
     }
 
-    private void AddNewCluster(List<List<TTransaction>> clusters, TTransaction transaction)
+    private void AddNewCluster(List<TCluster> clusters, TTransaction transaction)
     {
-        var cluster = new List<TTransaction>();
+        var cluster = new TCluster();
         cluster.Add(transaction);
         clusters.Add(cluster);
     }
 
-    private double GetGradient(IEnumerable<TTransaction> cluster, TTransaction transaction) // не учитываются вхождения a:3,b:2,c:2,d:1
+    private double GetGradient(TCluster cluster, TTransaction transaction)
     {
         var transactions = cluster.SelectMany(x => x).Concat(transaction);
         var W = transactions.GroupBy(x => x).Count();

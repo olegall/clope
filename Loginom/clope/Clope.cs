@@ -2,7 +2,7 @@
 
 internal class Clope<TTransaction, TCluster> where TTransaction : IEnumerable<char> where TCluster : List<TTransaction>, new()
 {
-    public List<TCluster> Clusterize(TCluster transactions, double r)
+    internal List<TCluster> Clusterize(TCluster transactions, double r)
     {
         var clusters = new List<TCluster>();
         AddNewCluster(clusters, transactions[0]);

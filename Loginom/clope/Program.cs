@@ -48,6 +48,7 @@ IEnumerable<char[]> transactions2 = [['a', 'c', 'd'], ['a', 'd', 'e'], ['x'], ['
 //IEnumerable<char[]> transactions2 = [['y', 'z'], ['a', 'c', 'd']];
 //IEnumerable<char[]> transactions2 = [['a', 'c', 'd'], ['y', 'z']];
 var result2 = new Clope<char[], List<char[]>>().Clusterize(transactions2.ToList(), 0.3);
+var result21 = new Clope2<char[], List<char[]>>().Clusterize(transactions2.ToList(), 2.6);
 var break_ = 0;
 
 //List<TCluster> clusterize<TCluster>(TCluster transactions) where TCluster : IEnumerable<IEnumerable<char>>, new()

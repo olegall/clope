@@ -47,8 +47,29 @@ List<List<TTransaction>> clusterize<TTransaction>(IEnumerable<TTransaction> tran
 IEnumerable<char[]> transactions2 = [['a', 'c', 'd'], ['a', 'd', 'e'], ['x'], ['y', 'z']]; // рабит, 2 кластера H:1.5 G:0.3-неточно
 //IEnumerable<char[]> transactions2 = [['y', 'z'], ['a', 'c', 'd']];
 //IEnumerable<char[]> transactions2 = [['a', 'c', 'd'], ['y', 'z']];
+IEnumerable<char[]> transactions3 = 
+[
+    // похожие
+    //['e','x','y','y','t','a','f','c','b','n','e','c','s','s','w','w','p','w','o','p','k','n','g'],
+    //['e','b','s','w','t','a','f','c','b','g','e','c','s','s','w','w','p','w','o','p','k','n','m'],
+    //['e','b','y','w','t','l','f','c','b','n','e','c','s','s','w','w','p','w','o','p','n','s','m'],
+    //['p','x','y','w','t','p','f','c','n','p','e','e','s','s','w','w','p','w','o','p','k','v','g'],
+    //['e','b','s','y','t','a','f','c','b','g','e','c','s','s','w','w','p','w','o','p','k','s','m'],
+    
+    // разные, взяты случайно на всему файлу. тест: wwpw
+    ['e','x','f','n','f','n','f','w','b','n','t','e','s','f','w','w','p','w','o','e','k','a','g'],
+    ['p','x','s','n','t','p','f','c','n','n','e','e','s','s','w','w','p','w','o','p','k','s','g'],
+    ['e','b','y','w','t','a','f','c','b','w','e','c','s','s','w','w','p','w','o','p','k','s','m'],
+    ['e','x','f','g','t','n','f','c','b','u','t','b','s','s','g','g','p','w','o','p','n','y','d'],
+    ['p','k','y','y','f','n','f','w','n','w','e','c','y','y','y','y','p','y','o','e','w','c','l'],
+    //[e,x,y,y,t,l,f,c,b,g,e,c,s,s,w,w,p,w,o,p,n,n,g],
+    //[e,x,y,y,t,a,f,c,b,n,e,c,s,s,w,w,p,w,o,p,k,s,m],
+    //[e,b,s,y,t,a,f,c,b,w,e,c,s,s,w,w,p,w,o,p,n,s,g],
+    //[p,x,y,w,t,p,f,c,n,k,e,e,s,s,w,w,p,w,o,p,n,v,u],
+    //[e,x,f,n,f,n,f,w,b,n,t,e,s,f,w,w,p,w,o,e,k,a,g]
+]; // рабит, 2 кластера H:1.5 G:0.3-неточно
 var result2 = new Clope<char[], List<char[]>>().Clusterize(transactions2.ToList(), 0.3);
-var result21 = new Clope2<char[], List<char[]>>().Clusterize(transactions2.ToList(), 2.6);
+var result21 = new Clope2<char[], List<char[]>>().Clusterize(transactions3.ToList(), 2.6);
 var break_ = 0;
 
 //List<TCluster> clusterize<TCluster>(TCluster transactions) where TCluster : IEnumerable<IEnumerable<char>>, new()

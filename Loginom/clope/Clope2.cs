@@ -19,10 +19,26 @@ internal class Clope2<TTransaction, TCluster> where TTransaction : IEnumerable<c
         //List<TCluster> clusters =
         //var cls = new List<TCluster>() { new TCluster() { }, new TCluster() };
 
-        List<List<IEnumerable<char>>> clusters =
+        //List<List<IEnumerable<char>>> clusters =
+        //[
+        //    [ new[] { 'a', 'b' }, new[] { 'a', 'b', 'c' } ], // кластер 1. [ 'a', 'b', 'c' ] - IReadOnlyArray, new[] { 'a', 'b' } - просто массив
+        //    [ new[] { 'x', 's' }, new[] { 'y', 'w' } ] // кластер 2
+        //];
+        //List<List<IEnumerable<char>>> clusters = // похожие
+        //[
+        //    [ new[] { 'p', 'x', 's', 'n', 't', 'p', 'f', 'c', 'n', 'k', 'e', 'e', 's', 's', 'w', 'w', 'p', 'w', 'o', 'p', 'k', 's', 'u' } ],
+        //    [ new[] { 'e', 'x', 's', 'y', 't', 'a', 'f', 'c', 'b', 'k', 'e', 'c', 's', 's', 'w', 'w', 'p', 'w', 'o', 'p', 'n', 'n', 'g' } ],
+        //    [ new[] { 'e', 'b', 's', 'w', 't', 'l', 'f', 'c', 'b', 'n', 'e', 'c', 's', 's', 'w', 'w', 'p', 'w', 'o', 'p', 'n', 'n', 'm' } ],
+        //    [ new[] { 'p', 'x', 'y', 'w', 't', 'p', 'f', 'c', 'n', 'n', 'e', 'e', 's', 's', 'w', 'w', 'p', 'w', 'o', 'p', 'k', 's', 'u' } ],
+        //    [ new[] { 'e', 'x', 's', 'g', 'f', 'n', 'f', 'w', 'b', 'k', 't', 'e', 's', 's', 'w', 'w', 'p', 'w', 'o', 'e', 'n', 'a', 'g' } ]
+        //];
+        List<List<IEnumerable<char>>> clusters = // разные
         [
-            [ new[] { 'a', 'b' }, new[] { 'a', 'b', 'c' } ], // кластер 1. [ 'a', 'b', 'c' ] - IReadOnlyArray, new[] { 'a', 'b' } - просто массив
-            [ new[] { 'x', 's' }, new[] { 'y', 'w' } ] // кластер 2
+            [ new[] { 'e', 'b', 's', 'w', 't', 'a', 'f', 'c', 'b', 'g', 'e', 'c', 's', 's', 'w', 'w', 'p', 'w', 'o', 'p', 'k', 'n', 'm' } ],
+            [ new[] { 'e', 'x', 'f', 'n', 't', 'n', 'f', 'c', 'b', 'n', 't', 'b', 's', 's', 'g', 'p', 'p', 'w', 'o', 'p', 'k', 'v', 'd' } ],
+            [ new[] { 'e', 'x', 'f', 'n', 't', 'n', 'f', 'c', 'b', 'n', 't', 'b', 's', 's', 'p', 'g', 'p', 'w', 'o', 'p', 'n', 'y', 'd' } ],
+            [ new[] { 'e', 'x', 'f', 'g', 't', 'n', 'f', 'c', 'b', 'n', 't', 'b', 's', 's', 'p', 'p', 'p', 'w', 'o', 'p', 'k', 'y', 'd' } ],
+            [ new[] { 'e', 'x', 'y', 'n', 't', 'n', 'f', 'c', 'b', 'u', 't', 'b', 's', 's', 'g', 'g', 'p', 'w', 'o', 'p', 'n', 'v', 'd' } ]
         ];
         //var clusters = new List<List<IEnumerable<char>>>();
         foreach (var tr in transactions)

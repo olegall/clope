@@ -5,6 +5,7 @@ internal class Clope2<TTransaction, TCluster> where TTransaction : IEnumerable<c
     private const double r = 2.6;
     public List<List<IEnumerable<char>>> Clusterize(TCluster transactions, double r)
     {
+        #region data
         //List<TCluster> clustersOutput =
         //[
         //    [ ['a', 'b'], [ 'a', 'b', 'c' ], [ 'a', 'c', 'd' ] ], // кластер 1
@@ -40,6 +41,7 @@ internal class Clope2<TTransaction, TCluster> where TTransaction : IEnumerable<c
             [ new[] { 'e', 'x', 'f', 'g', 't', 'n', 'f', 'c', 'b', 'n', 't', 'b', 's', 's', 'p', 'p', 'p', 'w', 'o', 'p', 'k', 'y', 'd' } ],
             [ new[] { 'e', 'x', 'y', 'n', 't', 'n', 'f', 'c', 'b', 'u', 't', 'b', 's', 's', 'g', 'g', 'p', 'w', 'o', 'p', 'n', 'v', 'd' } ]
         ];
+        #endregion
         //var clusters = new List<List<IEnumerable<char>>>();
         foreach (var tr in transactions)
         {
@@ -51,12 +53,10 @@ internal class Clope2<TTransaction, TCluster> where TTransaction : IEnumerable<c
                 //clusters_[i].Add(tr);
                 //var profit = Profit(clusters_);
 
-                clusters[i].Add(tr);
                 //var profit = Profit(clusters);
                 var profit = DeltaAdd(clusters[i], tr, r);
 
                 indexes.TryAdd(profit, i);
-                clusters[i].RemoveAt(clusters[i].Count() - 1);
             }
             //if (indexes.Count > 0)
             //{

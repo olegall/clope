@@ -137,7 +137,9 @@ internal class Clope2<TTransaction, TCluster> where TTransaction : IEnumerable<c
     private double DeltaAdd(List<IEnumerable<char>> C, TTransaction t, double r)
     {
         var trs = C.SelectMany(x => x);
-        var Snew = trs.Count() + t.Count();
+        var C_S = trs.Count();
+        var C_N = C.Count();
+        var Snew = C_S + t.Count();
         var Occ = trs.GroupBy(x => x);
         var Wnew = Occ.Count();
         var keys = Occ.Select(x => x.Key);
@@ -148,7 +150,7 @@ internal class Clope2<TTransaction, TCluster> where TTransaction : IEnumerable<c
                 Snew += 1;
             }
         }
-        var result = Snew * (C.Count() + 1) / Math.Pow(Wnew, r);
+        var result = Snew * (C_N + 1) / Math.Pow(Wnew, r) - C_S * C_N / Math.Pow(Wnew, r);
         return result;
     }
 

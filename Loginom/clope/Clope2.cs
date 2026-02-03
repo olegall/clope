@@ -43,29 +43,32 @@ internal class Clope2<TTransaction, TCluster> where TTransaction : IEnumerable<c
         ];
         #endregion
         //var clusters = new List<List<IEnumerable<char>>>();
+        AddNewCluster(clusters);
         foreach (var tr in transactions)
         {
-            var indexes = new Dictionary<double, int>();
-            //AddNewCluster(clusters); // для текущей транзакции по всем кластерам, нужен, при попадании туда тр-и Profit мб максимальным
+            double maxCost = 0;
+            var bestChoice = 0;
+            //var indexes = new Dictionary<double, int>();
             for (var i = 0; i < clusters.Count; i++)
             {
-                //var clusters_ = clusters.Select(x => { var cl = new TCluster(); cl = (TCluster)x.ToList(); return cl; }).ToList();
-                //clusters_[i].Add(tr);
-                //var profit = Profit(clusters_);
-
+                var da = DeltaAdd(clusters[i], tr, r);
+                if (da > maxCost)
+                {
+                    maxCost = DeltaAdd(clusters[i], tr, r);
+                    bestChoice = i;
+                }
                 //var profit = Profit(clusters);
-                var profit = DeltaAdd(clusters[i], tr, r);
+                //var profit = DeltaAdd(clusters[i], tr, r); // Infinity на 1-й итерации
 
-                indexes.TryAdd(profit, i);
+                //indexes.TryAdd(profit, i);
             }
             //if (indexes.Count > 0)
             //{
-                var maxProfit = indexes.Select(x => x.Key).Max();
-                var idx = indexes[maxProfit];
-                clusters[idx].Add(tr);
+            //var maxProfit = indexes.Select(x => x.Key).Max();
+            //var idx = indexes[maxProfit];
+            if (clusters[bestChoice].Count() == 0) AddNewCluster(clusters);
+            clusters[bestChoice].Add(tr);
             //}
-            //if (clusters.Last().Count() == 0) // if (clusters.Count() > 1)
-            //    clusters.RemoveAt(clusters.Count() - 1);
         }
         return clusters;
     }
@@ -136,12 +139,14 @@ internal class Clope2<TTransaction, TCluster> where TTransaction : IEnumerable<c
     }
     private double DeltaAdd(List<IEnumerable<char>> C, TTransaction t, double r)
     {
+        if (C.Count == 0) return t.Count() / Math.Pow(t.Count(), r);
         var trs = C.SelectMany(x => x);
         var C_S = trs.Count();
-        var C_N = C.Count();
+        var C_N = C.Count;
         var Snew = C_S + t.Count();
         var Occ = trs.GroupBy(x => x);
-        var Wnew = Occ.Count();
+        var C_W = Occ.Count();
+        var Wnew = C_W;
         var keys = Occ.Select(x => x.Key);
         for (int i = 0; i < t.Count() - 1; i++)
         {
@@ -150,7 +155,7 @@ internal class Clope2<TTransaction, TCluster> where TTransaction : IEnumerable<c
                 Snew += 1;
             }
         }
-        var result = Snew * (C_N + 1) / Math.Pow(Wnew, r) - C_S * C_N / Math.Pow(Wnew, r);
+        var result = Snew * (C_N + 1) / Math.Pow(Wnew, r) - C_S * C_N / Math.Pow(C_W, r);
         return result;
     }
 

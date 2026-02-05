@@ -44,7 +44,7 @@ List<List<TTransaction>> clusterize<TTransaction>(IEnumerable<TTransaction> tran
 
 //IEnumerable<char[]> transactions2 = [['a', 'b'], ['a', 'b', 'c'], ['a', 'c', 'd'], ['d', 'e'], ['d', 'e', 'f']];
 //IEnumerable<char[]> transactions2 = [['a', 'b'], ['a', 'b', 'c'], ['d', 'e'], ['d', 'e', 'f']]; // рабит, 2 кластера H:1.5 G:0.3
-IEnumerable<char[]> transactions2 = [['a', 'c', 'd'], ['a', 'd', 'e'], ['x'], ['y', 'z']]; // рабит, 2 кластера H:1.5 G:0.3-неточно
+IEnumerable<char[]> transactions2 = [['a', 'c', 'd'], ['a', 'd', 'e'], ['u', 'v', 'w'], ['x', 'y', 'z']]; // рабит, 3 кластера
 //IEnumerable<char[]> transactions2 = [['y', 'z'], ['a', 'c', 'd']];
 //IEnumerable<char[]> transactions2 = [['a', 'c', 'd'], ['y', 'z']];
 IEnumerable<char[]> transactions3 = 
@@ -62,14 +62,35 @@ IEnumerable<char[]> transactions3 =
     ['e','b','y','w','t','a','f','c','b','w','e','c','s','s','w','w','p','w','o','p','k','s','m'],
     ['e','x','f','g','t','n','f','c','b','u','t','b','s','s','g','g','p','w','o','p','n','y','d'],
     ['p','k','y','y','f','n','f','w','n','w','e','c','y','y','y','y','p','y','o','e','w','c','l'],
+    ['z','z','z','z','z','z','z','z','z','z','z','z','z','z','z','z','z','z','z','z','z','z','z']
     //[e,x,y,y,t,l,f,c,b,g,e,c,s,s,w,w,p,w,o,p,n,n,g],
     //[e,x,y,y,t,a,f,c,b,n,e,c,s,s,w,w,p,w,o,p,k,s,m],
     //[e,b,s,y,t,a,f,c,b,w,e,c,s,s,w,w,p,w,o,p,n,s,g],
     //[p,x,y,w,t,p,f,c,n,k,e,e,s,s,w,w,p,w,o,p,n,v,u],
     //[e,x,f,n,f,n,f,w,b,n,t,e,s,f,w,w,p,w,o,e,k,a,g]
 ]; // рабит, 2 кластера H:1.5 G:0.3-неточно
-var result2 = new Clope<char[], List<char[]>>().Clusterize(transactions2.ToList(), 0.3);
-var result21 = new Clope2<char[], List<char[]>>().Clusterize(transactions3.ToList(), 2.6);
+IEnumerable<char[]> fromClusters = // разные
+[
+    ['e','x','f','n','f','n','f','w','b','n','t','e','s','f','w','w','p','w','o','e','k','a','g'], // из transaction3
+    ['p','x','s','n','t','p','f','c','n','n','e','e','s','s','w','w','p','w','o','p','k','s','g'],
+    ['e','b','y','w','t','a','f','c','b','w','e','c','s','s','w','w','p','w','o','p','k','s','m'],
+    ['e','x','f','g','t','n','f','c','b','u','t','b','s','s','g','g','p','w','o','p','n','y','d'],
+    ['p','k','y','y','f','n','f','w','n','w','e','c','y','y','y','y','p','y','o','e','w','c','l'],
+    ['z','z','z','z','z','z','z','z','z','z','z','z','z','z','z','z','z','z','z','z','z','z','z'],
+
+    ['e','b','s','w','t','a','f','c','b','g','e','c','s','s','w','w','p','w','o','p','k','n','m'],
+    ['e','x','f','n','t','n','f','c','b','n','t','b','s','s','g','p','p','w','o','p','k','v','d'],
+    ['e','x','f','n','t','n','f','c','b','n','t','b','s','s','p','g','p','w','o','p','n','y','d'],
+    ['e','x','f','g','t','n','f','c','b','n','t','b','s','s','p','p','p','w','o','p','k','y','d'],
+    ['e','x','y','n','t','n','f','c','b','u','t','b','s','s','g','g','p','w','o','p','n','v','d'],
+    ['z','z','z','z','z','z','z','z','z','z','z','z','z','z','z','z','z','z','z','z','z','z','z']
+];
+IEnumerable<char[]> transactions4 = [
+    ['a', 'a', 'a'], ['a', 'a', 'a'], ['a', 'a', 'a'], 
+    ['b', 'b', 'b'], ['b', 'b', 'b'], ['b', 'b', 'b'],
+    ['c', 'c', 'c'], ['c', 'c', 'c'], ['c', 'c', 'c']
+];
+var result21 = new Clope2<char[], List<char[]>>().Clusterize(fromClusters.ToList(), 2.6);
 var break_ = 0;
 
 //List<TCluster> clusterize<TCluster>(TCluster transactions) where TCluster : IEnumerable<IEnumerable<char>>, new()

@@ -1,4 +1,6 @@
-﻿namespace clope;
+﻿using System.Text;
+
+namespace clope;
 
 internal class Clope2<TTransaction, TCluster> where TTransaction : IEnumerable<char> where TCluster : List<TTransaction>, new()
 {
@@ -33,16 +35,16 @@ internal class Clope2<TTransaction, TCluster> where TTransaction : IEnumerable<c
         //    [ new[] { 'p', 'x', 'y', 'w', 't', 'p', 'f', 'c', 'n', 'n', 'e', 'e', 's', 's', 'w', 'w', 'p', 'w', 'o', 'p', 'k', 's', 'u' } ],
         //    [ new[] { 'e', 'x', 's', 'g', 'f', 'n', 'f', 'w', 'b', 'k', 't', 'e', 's', 's', 'w', 'w', 'p', 'w', 'o', 'e', 'n', 'a', 'g' } ]
         //];
-        List<List<IEnumerable<char>>> clusters = // разные
-        [
-            [ new[] { 'e', 'b', 's', 'w', 't', 'a', 'f', 'c', 'b', 'g', 'e', 'c', 's', 's', 'w', 'w', 'p', 'w', 'o', 'p', 'k', 'n', 'm' } ],
-            [ new[] { 'e', 'x', 'f', 'n', 't', 'n', 'f', 'c', 'b', 'n', 't', 'b', 's', 's', 'g', 'p', 'p', 'w', 'o', 'p', 'k', 'v', 'd' } ],
-            [ new[] { 'e', 'x', 'f', 'n', 't', 'n', 'f', 'c', 'b', 'n', 't', 'b', 's', 's', 'p', 'g', 'p', 'w', 'o', 'p', 'n', 'y', 'd' } ],
-            [ new[] { 'e', 'x', 'f', 'g', 't', 'n', 'f', 'c', 'b', 'n', 't', 'b', 's', 's', 'p', 'p', 'p', 'w', 'o', 'p', 'k', 'y', 'd' } ],
-            [ new[] { 'e', 'x', 'y', 'n', 't', 'n', 'f', 'c', 'b', 'u', 't', 'b', 's', 's', 'g', 'g', 'p', 'w', 'o', 'p', 'n', 'v', 'd' } ]
-        ];
+        //List<List<IEnumerable<char>>> clusters = // разные
+        //[
+        //    [ new[] { 'e', 'b', 's', 'w', 't', 'a', 'f', 'c', 'b', 'g', 'e', 'c', 's', 's', 'w', 'w', 'p', 'w', 'o', 'p', 'k', 'n', 'm' } ],
+        //    [ new[] { 'e', 'x', 'f', 'n', 't', 'n', 'f', 'c', 'b', 'n', 't', 'b', 's', 's', 'g', 'p', 'p', 'w', 'o', 'p', 'k', 'v', 'd' } ],
+        //    [ new[] { 'e', 'x', 'f', 'n', 't', 'n', 'f', 'c', 'b', 'n', 't', 'b', 's', 's', 'p', 'g', 'p', 'w', 'o', 'p', 'n', 'y', 'd' } ],
+        //    [ new[] { 'e', 'x', 'f', 'g', 't', 'n', 'f', 'c', 'b', 'n', 't', 'b', 's', 's', 'p', 'p', 'p', 'w', 'o', 'p', 'k', 'y', 'd' } ],
+        //    [ new[] { 'e', 'x', 'y', 'n', 't', 'n', 'f', 'c', 'b', 'u', 't', 'b', 's', 's', 'g', 'g', 'p', 'w', 'o', 'p', 'n', 'v', 'd' } ]
+        //];
         #endregion
-        //var clusters = new List<List<IEnumerable<char>>>();
+        var clusters = new List<List<IEnumerable<char>>>();
         AddNewCluster(clusters);
         foreach (var tr in transactions)
         {
@@ -54,7 +56,7 @@ internal class Clope2<TTransaction, TCluster> where TTransaction : IEnumerable<c
                 var da = DeltaAdd(clusters[i], tr, r);
                 if (da > maxCost)
                 {
-                    maxCost = DeltaAdd(clusters[i], tr, r);
+                    maxCost = da;
                     bestChoice = i;
                 }
                 //var profit = Profit(clusters);
@@ -69,6 +71,38 @@ internal class Clope2<TTransaction, TCluster> where TTransaction : IEnumerable<c
             if (clusters[bestChoice].Count() == 0) AddNewCluster(clusters);
             clusters[bestChoice].Add(tr);
             //}
+        }
+
+        foreach (var tr in transactions)
+        {
+            double maxCost = 0;
+            var bestChoice = 0;
+            var act = clusters.FirstOrDefault(x => x.Contains(tr)); // зафиксировать индекс кл-ра тр-и
+            var actIdx = clusters.IndexOf(act);
+            var dr = DeltaRemove(act, tr, r);
+            for (var i = 0; i < clusters.Count; i++)
+            {
+                if (clusters[i] == act) {
+                    var a1 = new StringBuilder(); foreach (var cl in clusters[i]) { foreach (var c in cl) { a1.Append(c.ToString()); } a1.Append(' '); }
+                    var a2 = new StringBuilder(); foreach (var cl in act) { foreach (var c in cl) { a2.Append(c.ToString()); } a2.Append(' '); }
+                    continue;
+                }
+
+                var da = DeltaAdd(clusters[i], tr, r);
+                if (da + dr > maxCost)
+                {
+                    maxCost = da + dr;
+                    bestChoice = i;
+                }
+            }
+            if (maxCost > 0)
+            {
+                if (clusters[bestChoice].Count() == 0) AddNewCluster(clusters);
+                    clusters[bestChoice].Add(tr);
+
+                clusters[actIdx].Remove(tr);
+                clusters[bestChoice].Add(tr);
+            }
         }
         return clusters;
     }
@@ -144,18 +178,41 @@ internal class Clope2<TTransaction, TCluster> where TTransaction : IEnumerable<c
         var C_S = trs.Count();
         var C_N = C.Count;
         var Snew = C_S + t.Count();
-        var Occ = trs.GroupBy(x => x);
+        var Occ = trs.GroupBy(x => x); //var Occ = trs.GroupBy(x => x).ToDictionary<int, double>();
+        var occDict = new Dictionary<char, double>();
+        for (int i = 0; i < Occ.Count(); i++) occDict.Add(Occ.ElementAt(i).Key, Occ.ElementAt(i).Count()); //Occ.Select(x => occDict.Add(x.Key, x.Count()));
         var C_W = Occ.Count();
         var Wnew = C_W;
-        var keys = Occ.Select(x => x.Key);
         for (int i = 0; i < t.Count() - 1; i++)
         {
-            if (i < keys.Count() && keys.Contains(t.ElementAt(i)) && Occ.ElementAt(i).Count() == 0)
+            if (!occDict.ContainsKey(t.ElementAt(i)))
             {
-                Snew += 1;
+                Wnew += 1;
             }
         }
         var result = Snew * (C_N + 1) / Math.Pow(Wnew, r) - C_S * C_N / Math.Pow(C_W, r);
+        return result;
+    }
+    
+    private double DeltaRemove(List<IEnumerable<char>> C, TTransaction t, double r)
+    {
+        var trs = C.SelectMany(x => x);
+        var C_S = trs.Count();
+        var C_N = C.Count;
+        var Snew = C_S - t.Count();
+        var Occ = trs.GroupBy(x => x); //var Occ = trs.GroupBy(x => x).ToDictionary<int, double>();
+        var occDict = new Dictionary<char, double>();
+        for (int i = 0; i < Occ.Count(); i++) occDict.Add(Occ.ElementAt(i).Key, Occ.ElementAt(i).Count()); //Occ.Select(x => occDict.Add(x.Key, x.Count()));
+        var C_W = Occ.Count();
+        var Wnew = C_W;
+        for (int i = 0; i < t.Count() - 1; i++)
+        {
+            if (occDict[t.ElementAt(i)] == 1)
+            {
+                Wnew -= 1;
+            }
+        }
+        var result = Snew * (C_N - 1) / Math.Pow(Wnew, r) - C_S * C_N / Math.Pow(C_W, r);
         return result;
     }
 

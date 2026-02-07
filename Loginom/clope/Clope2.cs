@@ -1,11 +1,12 @@
-﻿using System.Text;
+﻿using System.Runtime.Intrinsics.X86;
+using System.Text;
 
 namespace clope;
 
-internal class Clope2<TTransaction, TCluster> where TTransaction : IEnumerable<char> where TCluster : List<TTransaction>, new()
+internal class Clope2<TTransaction, TCluster> where TTransaction : IEnumerable<int> where TCluster : List<TTransaction>, new()
 {
     private const double r = 2.6;
-    public List<List<IEnumerable<char>>> Clusterize(TCluster transactions, double r)
+    public List<List<IEnumerable<int>>> Clusterize(TCluster transactions, double r)
     {
         #region data
         //List<TCluster> clustersOutput =
@@ -44,10 +45,13 @@ internal class Clope2<TTransaction, TCluster> where TTransaction : IEnumerable<c
         //    [ new[] { 'e', 'x', 'y', 'n', 't', 'n', 'f', 'c', 'b', 'u', 't', 'b', 's', 's', 'g', 'g', 'p', 'w', 'o', 'p', 'n', 'v', 'd' } ]
         //];
         #endregion
-        var clusters = new List<List<IEnumerable<char>>>();
+        var clusters = new List<List<IEnumerable<int>>>();
         AddNewCluster(clusters);
+        var cnt = 0;
+        // phase 1
         foreach (var tr in transactions)
         {
+            cnt++;
             double maxCost = 0;
             var bestChoice = 0;
             //var indexes = new Dictionary<double, int>();
@@ -72,9 +76,11 @@ internal class Clope2<TTransaction, TCluster> where TTransaction : IEnumerable<c
             clusters[bestChoice].Add(tr);
             //}
         }
-
+        // phase2
+        var cnt2 = 0;
         foreach (var tr in transactions)
         {
+            cnt2++;
             double maxCost = 0;
             var bestChoice = 0;
             var act = clusters.FirstOrDefault(x => x.Contains(tr)); // зафиксировать индекс кл-ра тр-и
@@ -83,8 +89,8 @@ internal class Clope2<TTransaction, TCluster> where TTransaction : IEnumerable<c
             for (var i = 0; i < clusters.Count; i++)
             {
                 if (clusters[i] == act) {
-                    var a1 = new StringBuilder(); foreach (var cl in clusters[i]) { foreach (var c in cl) { a1.Append(c.ToString()); } a1.Append(' '); }
-                    var a2 = new StringBuilder(); foreach (var cl in act) { foreach (var c in cl) { a2.Append(c.ToString()); } a2.Append(' '); }
+                    //var a1 = new StringBuilder(); foreach (var cl in clusters[i]) { foreach (var c in cl) { a1.Append(c.ToString()); } a1.Append(' '); }
+                    //var a2 = new StringBuilder(); foreach (var cl in act) { foreach (var c in cl) { a2.Append(c.ToString()); } a2.Append(' '); }
                     continue;
                 }
 
@@ -107,54 +113,54 @@ internal class Clope2<TTransaction, TCluster> where TTransaction : IEnumerable<c
         return clusters;
     }
 
-    public List<List<IEnumerable<char>>> ClusterizeNoAddCluster(TCluster transactions, double r)
-    {
-        //List<List<IEnumerable<char>>> clusters =
-        //[
-        //    [ new[] { 'a', 'b' }, new[] { 'a', 'b', 'c' } ], // кластер 1. [ 'a', 'b', 'c' ] - IReadOnlyArray, new[] { 'a', 'b' } - просто массив
-        //    [ new[] { 'x', 's' }, new[] { 'y', 'w' } ] // кластер 2
-        //];
-        //List<List<IEnumerable<char>>> clusters = // похожие
-        //[
-        //    [ new[] { 'p', 'x', 's', 'n', 't', 'p', 'f', 'c', 'n', 'k', 'e', 'e', 's', 's', 'w', 'w', 'p', 'w', 'o', 'p', 'k', 's', 'u' } ],
-        //    [ new[] { 'e', 'x', 's', 'y', 't', 'a', 'f', 'c', 'b', 'k', 'e', 'c', 's', 's', 'w', 'w', 'p', 'w', 'o', 'p', 'n', 'n', 'g' } ],
-        //    [ new[] { 'e', 'b', 's', 'w', 't', 'l', 'f', 'c', 'b', 'n', 'e', 'c', 's', 's', 'w', 'w', 'p', 'w', 'o', 'p', 'n', 'n', 'm' } ],
-        //    [ new[] { 'p', 'x', 'y', 'w', 't', 'p', 'f', 'c', 'n', 'n', 'e', 'e', 's', 's', 'w', 'w', 'p', 'w', 'o', 'p', 'k', 's', 'u' } ],
-        //    [ new[] { 'e', 'x', 's', 'g', 'f', 'n', 'f', 'w', 'b', 'k', 't', 'e', 's', 's', 'w', 'w', 'p', 'w', 'o', 'e', 'n', 'a', 'g' } ]
-        //];
-        List<List<IEnumerable<char>>> clusters = // разные
-        [
-            [ new[] { 'e', 'b', 's', 'w', 't', 'a', 'f', 'c', 'b', 'g', 'e', 'c', 's', 's', 'w', 'w', 'p', 'w', 'o', 'p', 'k', 'n', 'm' } ],
-            [ new[] { 'e', 'x', 'f', 'n', 't', 'n', 'f', 'c', 'b', 'n', 't', 'b', 's', 's', 'g', 'p', 'p', 'w', 'o', 'p', 'k', 'v', 'd' } ],
-            [ new[] { 'e', 'x', 'f', 'n', 't', 'n', 'f', 'c', 'b', 'n', 't', 'b', 's', 's', 'p', 'g', 'p', 'w', 'o', 'p', 'n', 'y', 'd' } ],
-            [ new[] { 'e', 'x', 'f', 'g', 't', 'n', 'f', 'c', 'b', 'n', 't', 'b', 's', 's', 'p', 'p', 'p', 'w', 'o', 'p', 'k', 'y', 'd' } ],
-            [ new[] { 'e', 'x', 'y', 'n', 't', 'n', 'f', 'c', 'b', 'u', 't', 'b', 's', 's', 'g', 'g', 'p', 'w', 'o', 'p', 'n', 'v', 'd' } ]
-        ];
-        //var clusters = new List<List<IEnumerable<char>>>();
-        foreach (var tr in transactions)
-        {
-            AddCluster(clusters, tr);
-        }
-        foreach (var tr in transactions)
-        {
-            var indexes = new Dictionary<double, int>();
-            for (var i = 0; i < clusters.Count; i++)
-            {
-                clusters[i].Add(tr);
-                var profit = Profit(clusters);
+    //public List<List<IEnumerable<char>>> ClusterizeNoAddCluster(TCluster transactions, double r)
+    //{
+    //    //List<List<IEnumerable<char>>> clusters =
+    //    //[
+    //    //    [ new[] { 'a', 'b' }, new[] { 'a', 'b', 'c' } ], // кластер 1. [ 'a', 'b', 'c' ] - IReadOnlyArray, new[] { 'a', 'b' } - просто массив
+    //    //    [ new[] { 'x', 's' }, new[] { 'y', 'w' } ] // кластер 2
+    //    //];
+    //    //List<List<IEnumerable<char>>> clusters = // похожие
+    //    //[
+    //    //    [ new[] { 'p', 'x', 's', 'n', 't', 'p', 'f', 'c', 'n', 'k', 'e', 'e', 's', 's', 'w', 'w', 'p', 'w', 'o', 'p', 'k', 's', 'u' } ],
+    //    //    [ new[] { 'e', 'x', 's', 'y', 't', 'a', 'f', 'c', 'b', 'k', 'e', 'c', 's', 's', 'w', 'w', 'p', 'w', 'o', 'p', 'n', 'n', 'g' } ],
+    //    //    [ new[] { 'e', 'b', 's', 'w', 't', 'l', 'f', 'c', 'b', 'n', 'e', 'c', 's', 's', 'w', 'w', 'p', 'w', 'o', 'p', 'n', 'n', 'm' } ],
+    //    //    [ new[] { 'p', 'x', 'y', 'w', 't', 'p', 'f', 'c', 'n', 'n', 'e', 'e', 's', 's', 'w', 'w', 'p', 'w', 'o', 'p', 'k', 's', 'u' } ],
+    //    //    [ new[] { 'e', 'x', 's', 'g', 'f', 'n', 'f', 'w', 'b', 'k', 't', 'e', 's', 's', 'w', 'w', 'p', 'w', 'o', 'e', 'n', 'a', 'g' } ]
+    //    //];
+    //    List<List<IEnumerable<char>>> clusters = // разные
+    //    [
+    //        [ new[] { 'e', 'b', 's', 'w', 't', 'a', 'f', 'c', 'b', 'g', 'e', 'c', 's', 's', 'w', 'w', 'p', 'w', 'o', 'p', 'k', 'n', 'm' } ],
+    //        [ new[] { 'e', 'x', 'f', 'n', 't', 'n', 'f', 'c', 'b', 'n', 't', 'b', 's', 's', 'g', 'p', 'p', 'w', 'o', 'p', 'k', 'v', 'd' } ],
+    //        [ new[] { 'e', 'x', 'f', 'n', 't', 'n', 'f', 'c', 'b', 'n', 't', 'b', 's', 's', 'p', 'g', 'p', 'w', 'o', 'p', 'n', 'y', 'd' } ],
+    //        [ new[] { 'e', 'x', 'f', 'g', 't', 'n', 'f', 'c', 'b', 'n', 't', 'b', 's', 's', 'p', 'p', 'p', 'w', 'o', 'p', 'k', 'y', 'd' } ],
+    //        [ new[] { 'e', 'x', 'y', 'n', 't', 'n', 'f', 'c', 'b', 'u', 't', 'b', 's', 's', 'g', 'g', 'p', 'w', 'o', 'p', 'n', 'v', 'd' } ]
+    //    ];
+    //    //var clusters = new List<List<IEnumerable<char>>>();
+    //    foreach (var tr in transactions)
+    //    {
+    //        AddCluster(clusters, tr);
+    //    }
+    //    foreach (var tr in transactions)
+    //    {
+    //        var indexes = new Dictionary<double, int>();
+    //        for (var i = 0; i < clusters.Count; i++)
+    //        {
+    //            clusters[i].Add(tr);
+    //            var profit = Profit(clusters);
 
-                indexes.TryAdd(profit, i);
-                clusters[i].RemoveAt(clusters[i].Count() - 1);
-            }
-            //if (indexes.Count > 0)
-            //{
-            var maxProfit = indexes.Select(x => x.Key).Max();
-            var idx = indexes[maxProfit];
-            clusters[idx].Add(tr);
-            //}
-        }
-        return clusters;
-    }
+    //            indexes.TryAdd(profit, i);
+    //            clusters[i].RemoveAt(clusters[i].Count() - 1);
+    //        }
+    //        //if (indexes.Count > 0)
+    //        //{
+    //        var maxProfit = indexes.Select(x => x.Key).Max();
+    //        var idx = indexes[maxProfit];
+    //        clusters[idx].Add(tr);
+    //        //}
+    //    }
+    //    return clusters;
+    //}
 
     private double Profit(List<List<IEnumerable<char>>> clusters)
     {
@@ -171,7 +177,7 @@ internal class Clope2<TTransaction, TCluster> where TTransaction : IEnumerable<c
         var a1 = sum1 / sum2;
         return sum1/sum2;
     }
-    private double DeltaAdd(List<IEnumerable<char>> C, TTransaction t, double r)
+    private double DeltaAdd(List<IEnumerable<int>> C, TTransaction t, double r)
     {
         if (C.Count == 0) return t.Count() / Math.Pow(t.Count(), r);
         var trs = C.SelectMany(x => x);
@@ -179,7 +185,7 @@ internal class Clope2<TTransaction, TCluster> where TTransaction : IEnumerable<c
         var C_N = C.Count;
         var Snew = C_S + t.Count();
         var Occ = trs.GroupBy(x => x); //var Occ = trs.GroupBy(x => x).ToDictionary<int, double>();
-        var occDict = new Dictionary<char, double>();
+        var occDict = new Dictionary<int, double>();
         for (int i = 0; i < Occ.Count(); i++) occDict.Add(Occ.ElementAt(i).Key, Occ.ElementAt(i).Count()); //Occ.Select(x => occDict.Add(x.Key, x.Count()));
         var C_W = Occ.Count();
         var Wnew = C_W;
@@ -194,14 +200,14 @@ internal class Clope2<TTransaction, TCluster> where TTransaction : IEnumerable<c
         return result;
     }
     
-    private double DeltaRemove(List<IEnumerable<char>> C, TTransaction t, double r)
+    private double DeltaRemove(List<IEnumerable<int>> C, TTransaction t, double r)
     {
         var trs = C.SelectMany(x => x);
         var C_S = trs.Count();
         var C_N = C.Count;
         var Snew = C_S - t.Count();
         var Occ = trs.GroupBy(x => x); //var Occ = trs.GroupBy(x => x).ToDictionary<int, double>();
-        var occDict = new Dictionary<char, double>();
+        var occDict = new Dictionary<int, double>();
         for (int i = 0; i < Occ.Count(); i++) occDict.Add(Occ.ElementAt(i).Key, Occ.ElementAt(i).Count()); //Occ.Select(x => occDict.Add(x.Key, x.Count()));
         var C_W = Occ.Count();
         var Wnew = C_W;
@@ -216,16 +222,16 @@ internal class Clope2<TTransaction, TCluster> where TTransaction : IEnumerable<c
         return result;
     }
 
-    private void AddNewCluster(List<List<IEnumerable<char>>> clusters)
+    private void AddNewCluster(List<List<IEnumerable<int>>> clusters)
     {
-        var cluster = new List<IEnumerable<char>>();
+        var cluster = new List<IEnumerable<int>>();
         clusters.Add(cluster);
     }
 
-    private void AddCluster(List<List<IEnumerable<char>>> clusters, TTransaction transaction)
-    {
-        var cluster = new List<IEnumerable<char>>();
-        cluster.Add(transaction);
-        clusters.Add(cluster);
-    }
+    //private void AddCluster(List<List<IEnumerable<char>>> clusters, TTransaction transaction)
+    //{
+    //    var cluster = new List<IEnumerable<char>>();
+    //    cluster.Add(transaction);
+    //    clusters.Add(cluster);
+    //}
 }

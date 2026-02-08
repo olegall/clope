@@ -1,7 +1,4 @@
-﻿using System.Runtime.Intrinsics.X86;
-using System.Text;
-
-namespace clope;
+﻿namespace clope;
 
 internal class Clope2<TTransaction, TCluster> where TTransaction : IEnumerable<int> where TCluster : List<TTransaction>, new()
 {
@@ -78,36 +75,43 @@ internal class Clope2<TTransaction, TCluster> where TTransaction : IEnumerable<i
         }
         // phase2
         var cnt2 = 0;
-        foreach (var tr in transactions)
+        var moved = true;
+        while (moved)
         {
-            cnt2++;
-            double maxCost = 0;
-            var bestChoice = 0;
-            var act = clusters.FirstOrDefault(x => x.Contains(tr)); // зафиксировать индекс кл-ра тр-и
-            var actIdx = clusters.IndexOf(act);
-            var dr = DeltaRemove(act, tr, r);
-            for (var i = 0; i < clusters.Count; i++)
+            moved = false;
+            foreach (var tr in transactions)
             {
-                if (clusters[i] == act) {
-                    //var a1 = new StringBuilder(); foreach (var cl in clusters[i]) { foreach (var c in cl) { a1.Append(c.ToString()); } a1.Append(' '); }
-                    //var a2 = new StringBuilder(); foreach (var cl in act) { foreach (var c in cl) { a2.Append(c.ToString()); } a2.Append(' '); }
-                    continue;
-                }
-
-                var da = DeltaAdd(clusters[i], tr, r);
-                if (da + dr > maxCost)
+                cnt2++;
+                double maxCost = 0;
+                var bestChoice = 0;
+                var act = clusters.FirstOrDefault(x => x.Contains(tr)); // зафиксировать индекс кл-ра тр-и
+                var actIdx = clusters.IndexOf(act);
+                var dr = DeltaRemove(act, tr, r);
+                for (var i = 0; i < clusters.Count; i++)
                 {
-                    maxCost = da + dr;
-                    bestChoice = i;
+                    if (clusters[i] == act)
+                    {
+                        //var a1 = new StringBuilder(); foreach (var cl in clusters[i]) { foreach (var c in cl) { a1.Append(c.ToString()); } a1.Append(' '); }
+                        //var a2 = new StringBuilder(); foreach (var cl in act) { foreach (var c in cl) { a2.Append(c.ToString()); } a2.Append(' '); }
+                        continue;
+                    }
+
+                    var da = DeltaAdd(clusters[i], tr, r);
+                    if (da + dr > maxCost)
+                    {
+                        maxCost = da + dr;
+                        bestChoice = i;
+                    }
                 }
-            }
-            if (maxCost > 0)
-            {
-                if (clusters[bestChoice].Count() == 0) AddNewCluster(clusters);
+                if (maxCost > 0)
+                {
+                    if (clusters[bestChoice].Count() == 0) AddNewCluster(clusters);
                     clusters[bestChoice].Add(tr);
 
-                clusters[actIdx].Remove(tr);
-                clusters[bestChoice].Add(tr);
+                    clusters[actIdx].Remove(tr);
+                    clusters[bestChoice].Add(tr);
+                    moved = true;
+                }
             }
         }
         return clusters;
@@ -186,7 +190,7 @@ internal class Clope2<TTransaction, TCluster> where TTransaction : IEnumerable<i
         var Snew = C_S + t.Count();
         var Occ = trs.GroupBy(x => x); //var Occ = trs.GroupBy(x => x).ToDictionary<int, double>();
         var occDict = new Dictionary<int, double>();
-        for (int i = 0; i < Occ.Count(); i++) occDict.Add(Occ.ElementAt(i).Key, Occ.ElementAt(i).Count()); //Occ.Select(x => occDict.Add(x.Key, x.Count()));
+        foreach (var item in Occ.ToArray()) occDict.Add(item.Key, item.Count()); //Occ.Select(x => occDict.Add(x.Key, x.Count()));
         var C_W = Occ.Count();
         var Wnew = C_W;
         for (int i = 0; i < t.Count() - 1; i++)
@@ -208,7 +212,7 @@ internal class Clope2<TTransaction, TCluster> where TTransaction : IEnumerable<i
         var Snew = C_S - t.Count();
         var Occ = trs.GroupBy(x => x); //var Occ = trs.GroupBy(x => x).ToDictionary<int, double>();
         var occDict = new Dictionary<int, double>();
-        for (int i = 0; i < Occ.Count(); i++) occDict.Add(Occ.ElementAt(i).Key, Occ.ElementAt(i).Count()); //Occ.Select(x => occDict.Add(x.Key, x.Count()));
+        foreach (var item in Occ.ToArray()) occDict.Add(item.Key, item.Count()); //Occ.Select(x => occDict.Add(x.Key, x.Count()));
         var C_W = Occ.Count();
         var Wnew = C_W;
         for (int i = 0; i < t.Count() - 1; i++)

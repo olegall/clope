@@ -94,7 +94,7 @@ IEnumerable<char[]> transactions4 = [
 const string srcDataFilepath = "D:\\Работа\\Компании\\Loginom\\clope\\data\\agaricus-lepiota.data";
 var trs = Mushroom.Normalize(srcDataFilepath);
 //.Skip(1000).Take(100) // перетасуются кластеры на фазе 2
-var result21 = new Clope2<int[], List<int[]>>().Clusterize(trs.Skip(1000).Take(100).ToList(), 2.6);
+var result21 = new Clope2<int[], List<int[]>>().Clusterize(trs/*.Skip(1000).Take(1000)*/.ToList(), 2.6);
 var break_ = 0;
 
 //List<TCluster> clusterize<TCluster>(TCluster transactions) where TCluster : IEnumerable<IEnumerable<char>>, new()

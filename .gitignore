@@ -11,6 +11,7 @@
 *.map
 *.lock
 
+obj/
 Release/
 Debug/
 bin/

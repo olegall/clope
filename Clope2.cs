@@ -200,7 +200,7 @@ internal class Clope2<TTransaction, TCluster> where TTransaction : IEnumerable<i
                 Wnew += 1;
             }
         }
-        var result = Snew * (C_N + 1) / Math.Pow(Wnew, r) - C_S * C_N / Math.Pow(C_W, r);
+        var result = Snew * (C_N + 1) / Wnew.P(r) - C_S * C_N / C_W.P(r);
         return result;
     }
     
@@ -222,7 +222,7 @@ internal class Clope2<TTransaction, TCluster> where TTransaction : IEnumerable<i
                 Wnew -= 1;
             }
         }
-        var result = Snew * (C_N - 1) / Math.Pow(Wnew, r) - C_S * C_N / Math.Pow(C_W, r);
+        var result = Snew * (C_N - 1) / Wnew.P(r) - C_S * C_N / C_W.P(r);
         return result;
     }
 

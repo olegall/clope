@@ -5,185 +5,190 @@ class Mushroom
 	static readonly Dictionary<int, Dictionary<char, int>> mapping = new Dictionary<int, Dictionary<char, int>>
 		{
 			{1, new Dictionary<char, int> {
-				{'b', 1},
-				{'c', 2},
-				{'x', 3},
-				{'f', 4},
-				{'k', 5},
-				{'s', 6}
+				{'p', 1},
+				{'e', 2}
 			} },
 			{2, new Dictionary<char, int> {
-				{'f', 7},
-				{'g', 8},
-				{'y', 9},
-				{'s', 10}
+				{'b', 3},
+				{'c', 4},
+				{'x', 5},
+				{'f', 6},
+				{'k', 7},
+				{'s', 8}
 			} },
 			{3, new Dictionary<char, int> {
-				{'n', 11},
-				{'b', 12},
-				{'c', 13},
-				{'g', 14},
-				{'r', 15},
-				{'p', 16},
-				{'u', 17},
-				{'e', 18},
-				{'w', 19},
-				{'y', 20}
+				{'f', 9},
+				{'g', 10},
+				{'y', 11},
+				{'s', 12}
 			} },
 			{4, new Dictionary<char, int> {
-				{'t', 21},
-				{'f', 22}
+				{'n', 13},
+				{'b', 14},
+				{'c', 15},
+				{'g', 16},
+				{'r', 17},
+				{'p', 18},
+				{'u', 19},
+				{'e', 20},
+				{'w', 21},
+				{'y', 22}
 			} },
 			{5, new Dictionary<char, int> {
-				{'a', 23},
-				{'l', 24},
-				{'c', 25},
-				{'y', 26},
-				{'f', 27},
-				{'m', 28},
-				{'n', 29},
-				{'p', 30},
-				{'s', 31}
+				{'t', 23},
+				{'f', 24}
 			} },
 			{6, new Dictionary<char, int> {
-				{'a', 32},
-				{'d', 33},
-				{'f', 34},
-				{'n', 35}
+				{'a', 25},
+				{'l', 26},
+				{'c', 27},
+				{'y', 28},
+				{'f', 29},
+				{'m', 30},
+				{'n', 31},
+				{'p', 32},
+				{'s', 33}
 			} },
 			{7, new Dictionary<char, int> {
-				{'c', 36},
-				{'w', 37},
-				{'d', 38}
+				{'a', 34},
+				{'d', 35},
+				{'f', 36},
+				{'n', 37}
 			} },
 			{8, new Dictionary<char, int> {
-				{'b', 39},
-				{'n', 40}
+				{'c', 38},
+				{'w', 39},
+				{'d', 40}
 			} },
 			{9, new Dictionary<char, int> {
-				{'k', 41},
-				{'n', 42},
-				{'b', 43},
-				{'h', 44},
-				{'g', 45},
-				{'r', 46},
-				{'o', 47},
-				{'p', 48},
-				{'u', 49},
-				{'e', 50},
-				{'w', 51},
-				{'y', 52},
+				{'b', 41},
+				{'n', 42}
 			} },
 			{10, new Dictionary<char, int> {
-				{'e', 53},
-				{'t', 54}
+				{'k', 43},
+				{'n', 44},
+				{'b', 45},
+				{'h', 46},
+				{'g', 47},
+				{'r', 48},
+				{'o', 49},
+				{'p', 50},
+				{'u', 51},
+				{'e', 52},
+				{'w', 53},
+				{'y', 54},
 			} },
 			{11, new Dictionary<char, int> {
-				{'b', 55},
-				{'c', 56},
-				{'u', 57},
-				{'e', 58},
-				{'z', 59},
-				{'r', 60}
+				{'e', 55},
+				{'t', 56}
 			} },
 			{12, new Dictionary<char, int> {
-				{'f', 61},
-				{'y', 62},
-				{'k', 63},
-				{'s', 64}
-			} },
+				{'b', 57},
+				{'c', 58},
+				{'u', 59},
+				{'e', 60},
+				{'z', 61},
+				{'r', 62},
+	               //{'?', }
+	           } },
 			{13, new Dictionary<char, int> {
-				{'f', 65},
-				{'y', 66},
-				{'k', 67},
-				{'s', 68}
+				{'f', 63},
+				{'y', 64},
+				{'k', 65},
+				{'s', 66}
 			} },
 			{14, new Dictionary<char, int> {
-				{'n', 69},
-				{'b', 70},
-				{'c', 71},
-				{'g', 72},
-				{'o', 73},
-				{'p', 74},
-				{'e', 75},
-				{'w', 76},
-				{'y', 77}
+				{'f', 67},
+				{'y', 68},
+				{'k', 69},
+				{'s', 70}
 			} },
 			{15, new Dictionary<char, int> {
-				{'n', 78},
-				{'b', 79},
-				{'c', 80},
-				{'g', 81},
-				{'o', 82},
-				{'p', 83},
-				{'e', 84},
-				{'w', 85},
-				{'y', 86}
+				{'n', 71},
+				{'b', 72},
+				{'c', 73},
+				{'g', 74},
+				{'o', 75},
+				{'p', 76},
+				{'e', 77},
+				{'w', 78},
+				{'y', 79}
 			} },
 			{16, new Dictionary<char, int> {
-				{'p', 87},
-				{'u', 88}
+				{'n', 80},
+				{'b', 81},
+				{'c', 82},
+				{'g', 83},
+				{'o', 84},
+				{'p', 85},
+				{'e', 86},
+				{'w', 87},
+				{'y', 88}
 			} },
 			{17, new Dictionary<char, int> {
-				{'n', 89},
-				{'o', 90},
-				{'w', 91},
-				{'y', 92}
+				{'p', 89},
+				{'u', 90}
 			} },
 			{18, new Dictionary<char, int> {
-				{'n', 93},
-				{'o', 94},
-				{'t', 95}
+				{'n', 91},
+				{'o', 92},
+				{'w', 93},
+				{'y', 94}
 			} },
 			{19, new Dictionary<char, int> {
-				{'c', 96},
-				{'e', 97},
-				{'f', 98},
-				{'l', 99},
-				{'n', 100},
-				{'p', 101},
-				{'s', 102},
-				{'z', 103}
+				{'n', 95},
+				{'o', 96},
+				{'t', 97}
 			} },
 			{20, new Dictionary<char, int> {
-				{'k', 104},
-				{'n', 105},
-				{'b', 106},
-				{'h', 107},
-				{'r', 108},
-				{'o', 109},
-				{'u', 110},
-				{'w', 111},
-				{'y', 112}
+				{'c', 98},
+				{'e', 99},
+				{'f', 100},
+				{'l', 101},
+				{'n', 102},
+				{'p', 103},
+				{'s', 104},
+				{'z', 105}
 			} },
 			{21, new Dictionary<char, int> {
-				{'a', 113},
-				{'c', 114},
-				{'n', 115},
-				{'s', 117},
-				{'v', 118},
-				{'y', 119}
+				{'k', 106},
+				{'n', 107},
+				{'b', 108},
+				{'h', 109},
+				{'r', 110},
+				{'o', 111},
+				{'u', 112},
+				{'w', 113},
+				{'y', 114}
 			} },
 			{22, new Dictionary<char, int> {
-				{'g', 120},
-				{'l', 121},
-				{'m', 122},
-				{'p', 123},
-				{'u', 124},
-				{'w', 125},
-                {'d', 126}
-            } }
-    };
+				{'a', 115},
+				{'c', 116},
+				{'n', 117},
+				{'s', 118},
+				{'v', 119},
+				{'y', 120}
+			} },
+			{23, new Dictionary<char, int> {
+				{'g', 121},
+				{'l', 122},
+				{'m', 123},
+				{'p', 124},
+				{'u', 125},
+				{'w', 126},
+				{'d', 127}
+			} }
+	};
 
 	public static IEnumerable<int[]> Normalize(string inputFilePath)
 	{
-		StreamReader sr = new StreamReader(inputFilePath);
+		var sr = new StreamReader(inputFilePath);
 		var result_ = new List<int[]>();
 		while (!sr.EndOfStream)
 		{
-			String line = sr.ReadLine().Replace(" ", "");
-			line = line.Substring(2, line.Length - 2);
-			string[] attributes = line.Split(',');
+            var line = sr.ReadLine().Replace(" ", "");
+			//line = line.Substring(2, line.Length - 2);
+			var attributes = line.Split(',');
 			var result = new List<int>();
 			for (int i = 0; i < attributes.Length; i++)
 			{

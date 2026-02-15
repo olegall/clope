@@ -114,6 +114,7 @@ internal class Clope2<TTransaction, TCluster> where TTransaction : IEnumerable<i
                 }
             }
         }
+        // TODO удалить пустые кластеры
         return clusters;
     }
 
@@ -188,14 +189,14 @@ internal class Clope2<TTransaction, TCluster> where TTransaction : IEnumerable<i
         var C_S = trs.Count();
         var C_N = C.Count;
         var Snew = C_S + t.Count();
-        var Occ = trs.GroupBy(x => x); //var Occ = trs.GroupBy(x => x).ToDictionary<int, double>();
-        var occDict = new Dictionary<int, double>();
-        foreach (var item in Occ.ToArray()) occDict.Add(item.Key, item.Count()); //Occ.Select(x => occDict.Add(x.Key, x.Count()));
-        var C_W = Occ.Count();
+        var histogram = trs.GroupBy(x => x); //var histogram = trs.GroupBy(x => x).ToDictionary<int, double>();
+        var histogram_ = new Dictionary<int, int>(); // <TOcc, TObject>
+        foreach (var item in histogram.ToArray()) histogram_.Add(item.Key, item.Count()); //histogram.Select(x => histogram_.Add(x.Key, x.Count()));
+        var C_W = histogram.Count();
         var Wnew = C_W;
         for (int i = 0; i < t.Count() - 1; i++)
         {
-            if (!occDict.ContainsKey(t.ElementAt(i)))
+            if (!histogram_.ContainsKey(t.ElementAt(i))) // occ
             {
                 Wnew += 1;
             }
@@ -210,14 +211,14 @@ internal class Clope2<TTransaction, TCluster> where TTransaction : IEnumerable<i
         var C_S = trs.Count();
         var C_N = C.Count;
         var Snew = C_S - t.Count();
-        var Occ = trs.GroupBy(x => x); //var Occ = trs.GroupBy(x => x).ToDictionary<int, double>();
-        var occDict = new Dictionary<int, double>();
-        foreach (var item in Occ.ToArray()) occDict.Add(item.Key, item.Count()); //Occ.Select(x => occDict.Add(x.Key, x.Count()));
-        var C_W = Occ.Count();
+        var histogram = trs.GroupBy(x => x); //var histogram = trs.GroupBy(x => x).ToDictionary<int, double>();
+        var histogram_ = new Dictionary<int, int>();
+        foreach (var item in histogram.ToArray()) histogram_.Add(item.Key, item.Count()); //histogram.Select(x => histogram_.Add(x.Key, x.Count()));
+        var C_W = histogram.Count();
         var Wnew = C_W;
         for (int i = 0; i < t.Count() - 1; i++)
         {
-            if (occDict[t.ElementAt(i)] == 1)
+            if (histogram_[t.ElementAt(i)] == 1)
             {
                 Wnew -= 1;
             }

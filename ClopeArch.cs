@@ -57,7 +57,6 @@ internal class ClopeArch
                 if (maxCost > 0)
                 {
                     if (clusters[bestChoice].Count == 0) AddNewCluster(clusters);
-                    clusters[bestChoice].Transactions.Add(tr);
 
                     clusters[actIdx].Transactions.Remove(tr);
                     clusters[bestChoice].Transactions.Add(tr);
@@ -66,6 +65,7 @@ internal class ClopeArch
             }
         }
         // TODO удалить пустые кластеры
+        clusters = clusters.Where(x => x.Transactions.Count() > 0).ToList(); // TODO убрать ToList()
         return clusters;
     }
 

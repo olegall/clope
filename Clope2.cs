@@ -73,6 +73,7 @@ internal class Clope2<TTransaction, TCluster> where TTransaction : IEnumerable<i
             clusters[bestChoice].Add(tr);
             //}
         }
+        var trsCount1 = clusters.SelectMany(x => x).Count();
         // phase2
         var cnt2 = 0;
         var moved = true;
@@ -106,8 +107,8 @@ internal class Clope2<TTransaction, TCluster> where TTransaction : IEnumerable<i
                 if (maxCost > 0)
                 {
                     if (clusters[bestChoice].Count() == 0) AddNewCluster(clusters);
-                    clusters[bestChoice].Add(tr);
 
+                    // перемещение тр-и
                     clusters[actIdx].Remove(tr);
                     clusters[bestChoice].Add(tr);
                     moved = true;
@@ -115,6 +116,7 @@ internal class Clope2<TTransaction, TCluster> where TTransaction : IEnumerable<i
             }
         }
         // TODO удалить пустые кластеры
+        var trsCount2 = clusters.SelectMany(x => x).Count();
         return clusters;
     }
 
@@ -204,7 +206,57 @@ internal class Clope2<TTransaction, TCluster> where TTransaction : IEnumerable<i
         var result = Snew * (C_N + 1) / Wnew.P(r) - C_S * C_N / C_W.P(r);
         return result;
     }
-    
+
+    //private double DeltaAdd(List<IEnumerable<int>> C, TTransaction t, double r)
+    //{
+    //    var C_ = new Cluster(C);
+    //    if (C.Count == 0) return t.Count() / Math.Pow(t.Count(), r);
+    //    var Snew = C_.S + t.Count();
+    //    var Wnew = C_.W;
+    //    for (int i = 0; i < t.Count() - 1; i++)
+    //    {
+    //        if (!C_.Histogram.ContainsKey(t.ElementAt(i))) // occ
+    //        {
+    //            Wnew += 1;
+    //        }
+    //    }
+    //    var result = Snew * (C_.N + 1) / Wnew.P(r) - C_.S * C_.N / C_.W.P(r);
+    //    return result;
+    //}
+
+    //private double DeltaAdd(Cluster C, TTransaction t, double r)
+    //{
+    //    if (C.Count == 0) return t.Count() / Math.Pow(t.Count(), r);
+    //    var Snew = C.S + t.Count();
+    //    var Wnew = C.W;
+    //    for (int i = 0; i < t.Count() - 1; i++)
+    //    {
+    //        if (!C.Histogram.ContainsKey(t.ElementAt(i))) // occ
+    //        {
+    //            Wnew += 1;
+    //        }
+    //    }
+    //    var result = Snew * (C.N + 1) / Wnew.P(r) - C.S * C.N / C.W.P(r);
+    //    return result;
+    //}
+
+    //private double DeltaAdd(List<IEnumerable<int>> CL, TTransaction t, double r)
+    //{
+    //    C.self = CL;
+    //    if (CL.Count == 0) return t.Count() / Math.Pow(t.Count(), r);
+    //    var Snew = C.S + t.Count();
+    //    var Wnew = C.W;
+    //    for (int i = 0; i < t.Count() - 1; i++)
+    //    {
+    //        if (!C.Histogram.ContainsKey(t.ElementAt(i))) // occ
+    //        {
+    //            Wnew += 1;
+    //        }
+    //    }
+    //    var result = Snew * (C.N + 1) / Wnew.P(r) - C.S * C.N / C.W.P(r);
+    //    return result;
+    //}
+
     private double DeltaRemove(List<IEnumerable<int>> C, TTransaction t, double r)
     {
         var trs = C.SelectMany(x => x);

@@ -5,6 +5,7 @@ internal class Clope2<TTransaction, TCluster> where TTransaction : IEnumerable<i
     private const double r = 2.6;
     public List<List<IEnumerable<int>>> Clusterize(TCluster transactions, double r)
     {
+        var dt1 = DateTime.Now;
         #region data
         //List<TCluster> clustersOutput =
         //[
@@ -74,6 +75,8 @@ internal class Clope2<TTransaction, TCluster> where TTransaction : IEnumerable<i
             //}
         }
         var trsCount1 = clusters.SelectMany(x => x).Count();
+        var dt2 = DateTime.Now;
+        var res = (dt2 - dt1).TotalSeconds;
         // phase2
         var cnt2 = 0;
         var moved = true;

@@ -34,16 +34,7 @@ internal class ClusterArch
 {
     public List<IEnumerable<int>> Transactions { get; set; } = new List<IEnumerable<int>>();
 
-    public Dictionary<int, int> Histogram
-    {
-        get
-        {
-            var histogram = Trs.GroupBy(x => x); //var histogram = trs.GroupBy(x => x).ToDictionary<int, double>();
-            var histogram_ = new Dictionary<int, int>(); // <TOcc, TObject>
-            foreach (var item in histogram.ToArray()) histogram_.Add(item.Key, item.Count()); //histogram.Select(x => histogram_.Add(x.Key, x.Count()));
-            return histogram_;
-        }
-    }
+    public Dictionary<int, int> Histogram => Trs.GroupBy(x => x).ToDictionary(x => x.Key, x => x.Count());
 
     public int Count => Transactions.Count();
     public int S => Trs.Count();

@@ -28,8 +28,9 @@ internal class ClopeArch
             clusters[bestChoice].Transactions.Add(tr);
         }
         var dt2 = DateTime.Now;
-        var res = (dt2 - dt1).TotalSeconds;
-        var trsCount1 = clusters.SelectMany(x => x.Transactions).Count();
+        var phase1 = (dt2 - dt1).TotalSeconds;
+        var phase1Ms = (dt2 - dt1).TotalMilliseconds;
+        var trsCount1 = clusters.SelectMany(x => x.Transactions).Count(); // 8124
         // phase2
         var cnt2 = 0;
         var moved = true;
@@ -68,9 +69,8 @@ internal class ClopeArch
                 }
             }
         }
-        //RemoveEmptyClusters(clusters);
-        clusters = clusters.Where(x => x.Transactions.Count() > 0).ToList();
-        var trsCount2 = clusters.SelectMany(x => x.Transactions).Count();
+        RemoveEmptyClusters(ref clusters);
+        var trsCount2 = clusters.SelectMany(x => x.Transactions).Count(); // 8124
         return clusters;
     }
 
@@ -79,7 +79,7 @@ internal class ClopeArch
         if (C.Count == 0) return t.Count() / Math.Pow(t.Count(), r);
         var Snew = C.S + t.Count();
         var Wnew = C.W;
-        var hg = C.Histogram; // TODO источник тормозов
+        var hg = C.Histogram; // TODO источник тормозов. возможно тк вычисляет Histogram на лету при обращении к св-ву
         for (int i = 0; i < t.Count() - 1; i++) // TODO источник тормозов. Any
         {
             if (!hg.ContainsKey(t.ElementAt(i))) // TODO occ
@@ -87,7 +87,6 @@ internal class ClopeArch
                 Wnew += 1;
             }
         }
-        //if (t.Any(x => !hg.ContainsKey(x))) Wnew += 1;
         return Snew * (C.N + 1) / Wnew.P(r) - C.S * C.N / C.W.P(r);
     }
 
@@ -108,5 +107,5 @@ internal class ClopeArch
 
     private void AddNewCluster(List<ClusterArch> clusters) => clusters.Add(new ClusterArch()); // TODO в Cluster / ClusterService?
 
-    private void RemoveEmptyClusters(List<ClusterArch> clusters) => clusters = clusters.Where(x => x.Transactions.Count() > 0).ToList(); // TODO в Cluster / ClusterService? TODO убрать ToList()
+    private void RemoveEmptyClusters(ref List<ClusterArch> clusters) => clusters = clusters.Where(x => x.Transactions.Count() > 0).ToList(); // TODO в Cluster / ClusterService? TODO убрать ToList()
 }

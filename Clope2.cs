@@ -55,7 +55,10 @@ internal class Clope2<TTransaction, TCluster> where TTransaction : IEnumerable<i
             //var indexes = new Dictionary<double, int>();
             for (var i = 0; i < clusters.Count; i++)
             {
+                var d1 = DateTime.Now;
                 var da = DeltaAdd(clusters[i], tr, r);
+                var d2 = DateTime.Now;
+                var dt1dt1 = (d2 - d1).TotalMilliseconds;
                 if (da > maxCost)
                 {
                     maxCost = da;
@@ -76,7 +79,8 @@ internal class Clope2<TTransaction, TCluster> where TTransaction : IEnumerable<i
         }
         var trsCount1 = clusters.SelectMany(x => x).Count();
         var dt2 = DateTime.Now;
-        var res = (dt2 - dt1).TotalSeconds;
+        var phase1 = (dt2 - dt1).TotalSeconds;
+        var phase1Ms = (dt2 - dt1).TotalMilliseconds;
         // phase2
         var cnt2 = 0;
         var moved = true;

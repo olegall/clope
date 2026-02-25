@@ -1,59 +1,111 @@
 ﻿namespace clope;
 
-internal class Clope<TTransaction, TCluster> where TTransaction : IEnumerable<char> where TCluster : List<TTransaction>, new()
+internal class Clope
 {
-    internal List<TCluster> Clusterize(TCluster transactions, double r)
+    private const double r = 2.6;
+    public List<Cluster> Clusterize(List<int[]> transactions, double r)
     {
-        var clusters = new List<TCluster>();
-        AddNewCluster(clusters, transactions[0]);
-        transactions.RemoveAt(0);
-
+        var dt1 = DateTime.Now;
+        var clusters = new List<Cluster>();
+        AddNewCluster(clusters);
+        var cnt = 0;
+        // phase 1
         foreach (var tr in transactions)
         {
-            var indexes = new Dictionary<double, int>();
-            for (var i = 0; i < clusters.Count; i++)
+            cnt++;
+            double maxCost = 0;
+            var bestChoice = 0;
+            for (var i = 0; i < clusters.Count(); i++)
             {
-                var G = GetGradient(clusters[i], tr);
-
-                if (G < r)
+                var da = DeltaAdd(clusters[i], tr, r);
+                if (da > maxCost)
                 {
-                    if (i == clusters.Count - 1)
-                    {
-                        AddNewCluster(clusters, tr);
-                        break;
-                    }
-                    continue;
-                }
-                else
-                {
-                    indexes.TryAdd(G, i);
-                    break;
+                    maxCost = da;
+                    bestChoice = i;
                 }
             }
-
-            if (indexes.Count > 0)
+            if (clusters[bestChoice].Count == 0) AddNewCluster(clusters);
+            clusters[bestChoice].Transactions.Add(tr);
+        }
+        var dt2 = DateTime.Now;
+        var phase1 = (dt2 - dt1).TotalSeconds;
+        var phase1Ms = (dt2 - dt1).TotalMilliseconds;
+        var trsCount1 = clusters.SelectMany(x => x.Transactions).Count(); // 8124
+        // phase2
+        var cnt2 = 0;
+        var moved = true;
+        while (moved)
+        {
+            moved = false;
+            foreach (var tr in transactions)
             {
-                var maxG = indexes.Select(x => x.Key).Max();
-                var idx = indexes[maxG];
-                clusters[idx].Add(tr);
+                cnt2++;
+                double maxCost = 0;
+                var bestChoice = 0;
+                var act = clusters.FirstOrDefault(x => x.Transactions.Contains(tr)); // TODO FirstOrDefault vs FindAsync? // зафиксировать индекс кл-ра тр-и
+                var actIdx = clusters.IndexOf(act);
+                var dr = DeltaRemove(act, tr, r);
+                for (var i = 0; i < clusters.Count; i++)
+                {
+                    if (clusters[i] == act)
+                    {
+                        continue;
+                    }
+
+                    var da = DeltaAdd(clusters[i], tr, r);
+                    if (da + dr > maxCost)
+                    {
+                        maxCost = da + dr;
+                        bestChoice = i;
+                    }
+                }
+                if (maxCost > 0)
+                {
+                    if (clusters[bestChoice].Count == 0) AddNewCluster(clusters);
+
+                    clusters[actIdx].Transactions.Remove(tr);
+                    clusters[bestChoice].Transactions.Add(tr);
+                    moved = true;
+                }
             }
         }
+        RemoveEmptyClusters(ref clusters);
+        var trsCount2 = clusters.SelectMany(x => x.Transactions).Count(); // 8124
         return clusters;
     }
 
-    private void AddNewCluster(List<TCluster> clusters, TTransaction transaction)
+    private double DeltaAdd(Cluster C, IEnumerable<int> t, double r)
     {
-        var cluster = new TCluster();
-        cluster.Add(transaction);
-        clusters.Add(cluster);
+        if (C.Count == 0) return t.Count() / Math.Pow(t.Count(), r);
+        var Snew = C.S + t.Count();
+        var Wnew = C.W;
+        var hg = C.Histogram; // TODO источник тормозов. возможно тк вычисляет Histogram на лету при обращении к св-ву
+        for (int i = 0; i < t.Count() - 1; i++) // TODO источник тормозов. Any
+        {
+            if (!hg.ContainsKey(t.ElementAt(i))) // TODO occ
+            {
+                Wnew += 1;
+            }
+        }
+        return Snew * (C.N + 1) / Wnew.P(r) - C.S * C.N / C.W.P(r);
     }
 
-    private double GetGradient(TCluster cluster, TTransaction transaction)
+    private double DeltaRemove(Cluster C, IEnumerable<int> t, double r)
     {
-        var transactions = cluster.SelectMany(x => x).Concat(transaction);
-        var W = transactions.GroupBy(x => x).Count();
-        var S = transactions.Count();
-        return (double)S / (W * W);
+        var Snew = C.S - t.Count();
+        var Wnew = C.W;
+        var hg = C.Histogram;
+        for (int i = 0; i < t.Count() - 1; i++)
+        {
+            if (!hg.ContainsKey(t.ElementAt(i)))
+            {
+                Wnew -= 1;
+            }
+        }
+        return Snew * (C.N - 1) / Wnew.P(r) - C.S * C.N / C.W.P(r);
     }
+
+    private void AddNewCluster(List<Cluster> clusters) => clusters.Add(new Cluster()); // TODO в Cluster / ClusterService?
+
+    private void RemoveEmptyClusters(ref List<Cluster> clusters) => clusters = clusters.Where(x => x.Transactions.Count() > 0).ToList(); // TODO в Cluster / ClusterService? TODO убрать ToList()
 }
-

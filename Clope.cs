@@ -3,9 +3,9 @@
 internal class Clope
 {
     private const double r = 2.6;
-    public List<Cluster> Clusterize(List<int[]> transactions, double r)
+    public static List<Cluster> Clusterize(List<int[]> transactions, double r)
     {
-        var dt1 = DateTime.Now;
+        var dt = DateTime.Now;
         var clusters = new List<Cluster>();
         AddNewCluster(clusters);
         var cnt = 0;
@@ -13,9 +13,9 @@ internal class Clope
         foreach (var tr in transactions)
         {
             cnt++;
-            double maxCost = 0;
-            var bestChoice = 0;
-            for (var i = 0; i < clusters.Count(); i++)
+            double maxCost = 0; // maxDelta
+            var bestChoice = 0; // j, maxDeltaIdx
+            for (var i = 0; i < clusters.Count; i++)
             {
                 var da = DeltaAdd(clusters[i], tr, r);
                 if (da > maxCost)
@@ -27,9 +27,7 @@ internal class Clope
             if (clusters[bestChoice].Count == 0) AddNewCluster(clusters);
             clusters[bestChoice].Transactions.Add(tr);
         }
-        var dt2 = DateTime.Now;
-        var phase1 = (dt2 - dt1).TotalSeconds;
-        var phase1Ms = (dt2 - dt1).TotalMilliseconds;
+        var phase1 = (DateTime.Now - dt).TotalSeconds; // 47
         var trsCount1 = clusters.SelectMany(x => x.Transactions).Count(); // 8124
         // phase2
         var cnt2 = 0;
@@ -42,12 +40,13 @@ internal class Clope
                 cnt2++;
                 double maxCost = 0;
                 var bestChoice = 0;
-                var act = clusters.FirstOrDefault(x => x.Transactions.Contains(tr)); // TODO FirstOrDefault vs FindAsync? // зафиксировать индекс кл-ра тр-и
+                var act = clusters.First(x => x.Transactions.Contains(tr)); // cluster зафиксировать индекс кл-ра тр-и
                 var actIdx = clusters.IndexOf(act);
-                var dr = DeltaRemove(act, tr, r);
+                
+                var dr = DeltaRemove(act, tr);
                 for (var i = 0; i < clusters.Count; i++)
                 {
-                    if (clusters[i] == act)
+                    if (clusters[i] == act) // equals
                     {
                         continue;
                     }
@@ -70,34 +69,35 @@ internal class Clope
             }
         }
         RemoveEmptyClusters(ref clusters);
+        var phase2 = (DateTime.Now - dt).TotalSeconds; // 244
         var trsCount2 = clusters.SelectMany(x => x.Transactions).Count(); // 8124
         return clusters;
     }
 
-    private double DeltaAdd(Cluster C, IEnumerable<int> t, double r)
+    private static double DeltaAdd(Cluster C, IEnumerable<int> t, double r)
     {
         if (C.Count == 0) return t.Count() / Math.Pow(t.Count(), r);
         var Snew = C.S + t.Count();
         var Wnew = C.W;
         var hg = C.Histogram; // TODO источник тормозов. возможно тк вычисляет Histogram на лету при обращении к св-ву
-        for (int i = 0; i < t.Count() - 1; i++) // TODO источник тормозов. Any
+        foreach (var el in t)
         {
-            if (!hg.ContainsKey(t.ElementAt(i))) // TODO occ
+            if (!hg.ContainsKey(el)) // TODO occ
             {
-                Wnew += 1;
+                Wnew += 1; // ++
             }
         }
         return Snew * (C.N + 1) / Wnew.P(r) - C.S * C.N / C.W.P(r);
     }
 
-    private double DeltaRemove(Cluster C, IEnumerable<int> t, double r)
+    private static double DeltaRemove(Cluster C, IEnumerable<int> t)
     {
         var Snew = C.S - t.Count();
         var Wnew = C.W;
         var hg = C.Histogram;
-        for (int i = 0; i < t.Count() - 1; i++)
+        foreach (var el in t)
         {
-            if (!hg.ContainsKey(t.ElementAt(i)))
+            if (!hg.ContainsKey(el)) // TODO occ
             {
                 Wnew -= 1;
             }
@@ -105,7 +105,7 @@ internal class Clope
         return Snew * (C.N - 1) / Wnew.P(r) - C.S * C.N / C.W.P(r);
     }
 
-    private void AddNewCluster(List<Cluster> clusters) => clusters.Add(new Cluster()); // TODO в Cluster / ClusterService?
+    private static void AddNewCluster(List<Cluster> clusters) => clusters.Add(new Cluster()); // TODO в Cluster / ClusterService?
 
-    private void RemoveEmptyClusters(ref List<Cluster> clusters) => clusters = clusters.Where(x => x.Transactions.Count() > 0).ToList(); // TODO в Cluster / ClusterService? TODO убрать ToList()
+    private static void RemoveEmptyClusters(ref List<Cluster> clusters) => clusters = clusters.Where(x => x.Transactions.Count > 0).ToList(); // TODO в Cluster / ClusterService? TODO убрать ToList()
 }

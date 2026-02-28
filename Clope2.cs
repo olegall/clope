@@ -123,6 +123,7 @@ internal class Clope2<TTransaction, TCluster> where TTransaction : IEnumerable<i
             }
         }
         // TODO удалить пустые кластеры
+        var phase2 = (DateTime.Now - dt1).TotalSeconds; // 163
         var trsCount2 = clusters.SelectMany(x => x).Count();
         return clusters;
     }

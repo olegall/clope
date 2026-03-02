@@ -1,6 +1,6 @@
 ﻿namespace clope;
 
-class Mushroom
+class MushroomDataSet
 {
     private static readonly Dictionary<int, Dictionary<char, int>> map = new()
     {

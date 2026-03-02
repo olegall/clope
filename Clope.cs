@@ -3,7 +3,7 @@
 internal class Clope
 {
     private const double r = 2.6;
-    public static List<Cluster> Clusterize(List<int[]> transactions, double r)
+    public static List<Cluster> Clusterize(List<int[]> transactions)
     {
         var dt = DateTime.Now;
         var clusters = new List<Cluster>();
@@ -74,38 +74,38 @@ internal class Clope
         return clusters;
     }
 
-    private static double DeltaAdd(Cluster C, IEnumerable<int> t, double r)
+    private static double DeltaAdd(Cluster C, int[] t, double r)
     {
-        if (C.Count == 0) return t.Count() / Math.Pow(t.Count(), r);
-        var Snew = C.S + t.Count();
+        if (C.Count == 0) return t.Length / Math.Pow(t.Length, r);
+        var Snew = C.S + t.Length;
         var Wnew = C.W;
         var hg = C.Histogram; // TODO источник тормозов. возможно тк вычисляет Histogram на лету при обращении к св-ву
         foreach (var el in t)
         {
             if (!hg.ContainsKey(el)) // TODO occ
             {
-                Wnew += 1; // ++
+                Wnew++;
             }
         }
         return Snew * (C.N + 1) / Wnew.P(r) - C.S * C.N / C.W.P(r);
     }
 
-    private static double DeltaRemove(Cluster C, IEnumerable<int> t)
+    private static double DeltaRemove(Cluster C, int[] t)
     {
-        var Snew = C.S - t.Count();
+        var Snew = C.S - t.Length;
         var Wnew = C.W;
         var hg = C.Histogram;
         foreach (var el in t)
         {
             if (!hg.ContainsKey(el)) // TODO occ
             {
-                Wnew -= 1;
+                Wnew--;
             }
         }
         return Snew * (C.N - 1) / Wnew.P(r) - C.S * C.N / C.W.P(r);
     }
 
-    private static void AddNewCluster(List<Cluster> clusters) => clusters.Add(new Cluster()); // TODO в Cluster / ClusterService?
+    private static void AddNewCluster(List<Cluster> clusters) => clusters.Add(new Cluster());
 
     private static void RemoveEmptyClusters(ref List<Cluster> clusters) => clusters = clusters.Where(x => x.Transactions.Count > 0).ToList(); // TODO в Cluster / ClusterService? TODO убрать ToList()
 }

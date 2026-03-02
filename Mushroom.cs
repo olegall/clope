@@ -2,27 +2,38 @@
 
 class Mushroom
 {
-    private static readonly Dictionary<int, Dictionary<char, int>> mapping = new()
+    private static readonly Dictionary<int, Dictionary<char, int>> map = new()
+    {
         {
-            {1, new() {
+            1, new()
+            {
                 {'p', 1},
                 {'e', 2}
-            } },
-            {2, new() {
+            }
+        },
+        {
+            2, new()
+            {
                 {'b', 3},
                 {'c', 4},
                 {'x', 5},
                 {'f', 6},
                 {'k', 7},
                 {'s', 8}
-            } },
-            {3, new() {
+            } 
+        },
+        {
+            3, new()
+            {
                 {'f', 9},
                 {'g', 10},
                 {'y', 11},
                 {'s', 12}
-            } },
-            {4, new() {
+            }
+        },
+        {
+            4, new() 
+            {
                 {'n', 13},
                 {'b', 14},
                 {'c', 15},
@@ -33,12 +44,18 @@ class Mushroom
                 {'e', 20},
                 {'w', 21},
                 {'y', 22}
-            } },
-            {5, new() {
+            } 
+        },
+        {
+            5, new() 
+            {
                 {'t', 23},
                 {'f', 24}
-            } },
-            {6, new() {
+            } 
+        },
+        {
+            6, new() 
+            {
                 {'a', 25},
                 {'l', 26},
                 {'c', 27},
@@ -48,23 +65,35 @@ class Mushroom
                 {'n', 31},
                 {'p', 32},
                 {'s', 33}
-            } },
-            {7, new() {
+            } 
+        },
+        {
+            7, new() 
+            {
                 {'a', 34},
                 {'d', 35},
                 {'f', 36},
                 {'n', 37}
-            } },
-            {8, new() {
+            } 
+        },
+        {
+            8, new() 
+            {
                 {'c', 38},
                 {'w', 39},
                 {'d', 40}
-            } },
-            {9, new() {
+            } 
+        },
+        {
+            9, new() 
+            {
                 {'b', 41},
                 {'n', 42}
-            } },
-            {10, new() {
+            } 
+        },
+        {
+            10, new() 
+            {
                 {'k', 43},
                 {'n', 44},
                 {'b', 45},
@@ -77,33 +106,47 @@ class Mushroom
                 {'e', 52},
                 {'w', 53},
                 {'y', 54},
-            } },
-            {11, new() {
+            } 
+        },
+        {
+            11, new()
+            {
                 {'e', 55},
                 {'t', 56}
-            } },
-            {12, new() {
+            }
+        },
+        {
+            12, new()
+            {
                 {'b', 57},
                 {'c', 58},
                 {'u', 59},
                 {'e', 60},
                 {'z', 61},
                 {'r', 62},
-	               //{'?', }
-	           } },
-            {13, new() {
+            }
+        },
+        {
+            13, new()
+            {
                 {'f', 63},
                 {'y', 64},
                 {'k', 65},
                 {'s', 66}
-            } },
-            {14, new() {
+            }
+        },
+        {
+            14, new() 
+            {
                 {'f', 67},
                 {'y', 68},
                 {'k', 69},
                 {'s', 70}
-            } },
-            {15, new() {
+            } 
+        },
+        {
+            15, new()
+            {
                 {'n', 71},
                 {'b', 72},
                 {'c', 73},
@@ -113,8 +156,11 @@ class Mushroom
                 {'e', 77},
                 {'w', 78},
                 {'y', 79}
-            } },
-            {16, new() {
+            } 
+        },
+        {
+            16, new()
+            {
                 {'n', 80},
                 {'b', 81},
                 {'c', 82},
@@ -124,23 +170,35 @@ class Mushroom
                 {'e', 86},
                 {'w', 87},
                 {'y', 88}
-            } },
-            {17, new() {
+            } 
+        },
+        {
+            17, new() 
+            {
                 {'p', 89},
                 {'u', 90}
-            } },
-            {18, new() {
+            } 
+        },
+        {
+            18, new() 
+            {
                 {'n', 91},
                 {'o', 92},
                 {'w', 93},
                 {'y', 94}
-            } },
-            {19, new() {
+            } 
+        },
+        {
+            19, new() 
+            {
                 {'n', 95},
                 {'o', 96},
                 {'t', 97}
-            } },
-            {20, new() {
+            } 
+        },
+        {
+            20, new() 
+            {
                 {'c', 98},
                 {'e', 99},
                 {'f', 100},
@@ -149,8 +207,11 @@ class Mushroom
                 {'p', 103},
                 {'s', 104},
                 {'z', 105}
-            } },
-            {21, new() {
+            } 
+        },
+        {
+            21, new() 
+            {
                 {'k', 106},
                 {'n', 107},
                 {'b', 108},
@@ -160,16 +221,22 @@ class Mushroom
                 {'u', 112},
                 {'w', 113},
                 {'y', 114}
-            } },
-            {22, new() {
+            } 
+        },
+        {
+            22, new() 
+            {
                 {'a', 115},
                 {'c', 116},
                 {'n', 117},
                 {'s', 118},
                 {'v', 119},
                 {'y', 120}
-            } },
-            {23, new() {
+            } 
+        },
+        {
+            23, new() 
+            {
                 {'g', 121},
                 {'l', 122},
                 {'m', 123},
@@ -177,27 +244,31 @@ class Mushroom
                 {'u', 125},
                 {'w', 126},
                 {'d', 127}
-            } }
+            } 
+        }
     };
 
-    public static IEnumerable<int[]> Normalize(string inputFilePath)
+    public static IEnumerable<int[]> Normalize(string selectionPath)
     {
-        using (var sr = new StreamReader(inputFilePath))
+        using var sr = new StreamReader(selectionPath);
+        var result = new List<int[]>();
+        while (!sr.EndOfStream)
         {
-            var result_ = new List<int[]>();
-            while (!sr.EndOfStream)
-            {
-                var line = sr.ReadLine().Replace(" ", "");
-                var attributes = line.Split(',');
-                var result = new List<int>();
-                for (int i = 0; i < attributes.Length; i++)
-                {
-                    if (attributes[i] != "?")
-                        result.Add(mapping[i + 1][attributes[i][0]]);
-                }
-                result_.Add([.. result]);
-            }
-            return result_;
+            var line = sr.ReadLine();
+            if (line is null) continue;
+
+            var characteristics = line.Replace(" ", string.Empty).Split(',');
+            result.Add([.. Map(characteristics)]);
+        }
+        return result;
+    }
+
+    private static IEnumerable<int> Map(string[] characteristics)
+    {
+        for (int i = 0; i < characteristics.Length; i++)
+        {
+            if (characteristics[i] != "?")
+                yield return map[i + 1][characteristics[i][0]];
         }
     }
 }

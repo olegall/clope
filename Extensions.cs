@@ -1,6 +1,6 @@
 ﻿namespace clope;
 
-public static class Extensions
+internal static class Extensions
 {
     /// <summary>
     /// Возвести в степень

@@ -4,7 +4,7 @@ internal class Cluster
 {
     public List<IEnumerable<int>> Transactions { get; set; } = [];
 
-    public Dictionary<int, int> Histogram { get => Trs.GroupBy(x => x).ToDictionary(x => x.Key, x => x.Count()); } // get
+    public Dictionary<int, int> Histogram { get => Trs.GroupBy(x => x).ToDictionary(x => x.Key, x => x.Count()); }
 
     public int Count { get => Transactions.Count; }
 

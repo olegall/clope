@@ -1,8 +1,8 @@
 ﻿namespace clope;
 
-class MushroomDataSet
+internal static class MushroomDataSet
 {
-    private static readonly Dictionary<int, Dictionary<char, int>> map = new()
+    private static readonly Dictionary<int, Dictionary<char, int>> _map = new()
     {
         {
             1, new()
@@ -268,7 +268,7 @@ class MushroomDataSet
         for (int i = 0; i < characteristics.Length; i++)
         {
             if (characteristics[i] != "?")
-                yield return map[i + 1][characteristics[i][0]];
+                yield return _map[i + 1][characteristics[i][0]];
         }
     }
 }

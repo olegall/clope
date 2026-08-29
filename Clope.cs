@@ -3,10 +3,12 @@
 internal static class Clope
 {
     private const double r = 2.6;
+    private static List<double> timesMs = [];
+
     public static List<Cluster> Clusterize(List<int[]> transactions)
     {
         var start = DateTime.Now;
-        var times = new List<double>();
+
         var clusters = new List<Cluster>();
         #region Phase1
         AddNewCluster(clusters);
@@ -16,9 +18,7 @@ internal static class Clope
             var iBestCluster = 0;
             for (var i = 0; i < clusters.Count; i++)
             {
-                var start2 = DateTime.Now;
                 var da = DeltaAdd(clusters[i], tr);
-                var end2 = (DateTime.Now - start2).TotalMilliseconds;
                 if (da > maxDelta)
                 {
                     maxDelta = da;
@@ -26,14 +26,13 @@ internal static class Clope
                 }
                 //Console.Debug("***");
                 //Debug.WriteLine(end2);
-                times.Add(end2);
             }
             if (clusters[iBestCluster].Count == 0) AddNewCluster(clusters);
 
             clusters[iBestCluster].Transactions.Add(tr);
         }
-        times = [.. times.OrderByDescending(x => x)];
-        var sum = times.Sum();
+        timesMs = [.. timesMs.OrderByDescending(x => x)];
+        var sum = timesMs.Sum();
         var end = DateTime.Now - start;
         #endregion
         #region Phase2
@@ -72,33 +71,43 @@ internal static class Clope
         }
         #endregion
         RemoveEmptyClusters(ref clusters);
+        var sum2 = timesMs.Sum();
+        var a1 = clusters.Select(x => x.Transactions);
         return clusters;
     }
 
     private static double DeltaAdd(Cluster C, int[] t)
     {
+        var dt = DateTime.Now;
         if (C.Count == 0) return t.Length / t.Length.P(r);
 
         var Snew = C.S + t.Length;
-        var Wnew = C.W;
         var hg = C.Histogram;
+        //var Wnew = C.W;
+        var Wnew = hg.Count;
         foreach (var el in t)
         {
             if (!hg.ContainsKey(el)) Wnew++;
         }
-        return Snew * (C.N + 1) / Wnew.P(r) - C.S * C.N / C.W.P(r);
+        var res = Snew * (C.N + 1) / Wnew.P(r) - C.S * C.N / hg.Count.P(r);
+        timesMs.Add((DateTime.Now - dt).TotalMilliseconds);
+        return res;
     }
 
     private static double DeltaRemove(Cluster C, int[] t)
     {
+        var dt = DateTime.Now;
         var Snew = C.S - t.Length;
-        var Wnew = C.W;
         var hg = C.Histogram;
+        //var Wnew = C.W;
+        var Wnew = hg.Count;
         foreach (var el in t)
         {
             if (!hg.ContainsKey(el)) Wnew--;
         }
-        return Snew * (C.N - 1) / Wnew.P(r) - C.S * C.N / C.W.P(r);
+        var res = Snew * (C.N - 1) / Wnew.P(r) - C.S * C.N / hg.Count.P(r);
+        timesMs.Add((DateTime.Now - dt).TotalMilliseconds);
+        return res;
     }
 
     private static void AddNewCluster(List<Cluster> clusters) => clusters.Add(new Cluster());

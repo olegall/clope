@@ -10,7 +10,7 @@ internal class Cluster
 
     public int S { get => Trs.Count(); }
 
-    public int W { get => Histogram.Count; }
+    //public int W { get => Histogram.Count; }
 
     public int N { get => Transactions.Count; }
 

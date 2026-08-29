@@ -7,7 +7,6 @@
 *.CopyComplete
 *.exe
 *.nupkg
-*.md
 *.map
 *.lock
 

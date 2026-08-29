@@ -5,6 +5,8 @@ internal static class Clope
     private const double r = 2.6;
     public static List<Cluster> Clusterize(List<int[]> transactions)
     {
+        var start = DateTime.Now;
+        var times = new List<double>();
         var clusters = new List<Cluster>();
         #region Phase1
         AddNewCluster(clusters);
@@ -14,17 +16,25 @@ internal static class Clope
             var iBestCluster = 0;
             for (var i = 0; i < clusters.Count; i++)
             {
+                var start2 = DateTime.Now;
                 var da = DeltaAdd(clusters[i], tr);
+                var end2 = (DateTime.Now - start2).TotalMilliseconds;
                 if (da > maxDelta)
                 {
                     maxDelta = da;
                     iBestCluster = i;
                 }
+                //Console.Debug("***");
+                //Debug.WriteLine(end2);
+                times.Add(end2);
             }
             if (clusters[iBestCluster].Count == 0) AddNewCluster(clusters);
 
             clusters[iBestCluster].Transactions.Add(tr);
         }
+        times = [.. times.OrderByDescending(x => x)];
+        var sum = times.Sum();
+        var end = DateTime.Now - start;
         #endregion
         #region Phase2
         var moved = true;

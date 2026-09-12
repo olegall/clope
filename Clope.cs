@@ -3,11 +3,11 @@
 internal static class Clope
 {
     private const double r = 2.6;
-    private static List<double> timesMs = [];
+    private static List<double> timesLocalMs = [];
 
     public static List<Cluster> Clusterize(List<int[]> transactions)
     {
-        var start = DateTime.Now;
+        var now = DateTime.Now;
 
         var clusters = new List<Cluster>();
         #region Phase1
@@ -31,9 +31,9 @@ internal static class Clope
 
             clusters[iBestCluster].Transactions.Add(tr);
         }
-        timesMs = [.. timesMs.OrderByDescending(x => x)];
-        var sum = timesMs.Sum();
-        var end = DateTime.Now - start;
+        timesLocalMs = [.. timesLocalMs.OrderByDescending(x => x)];
+        var sum = timesLocalMs.Sum()/1000;
+        var total = (DateTime.Now - now).TotalSeconds;
         #endregion
         #region Phase2
         var moved = true;
@@ -71,26 +71,26 @@ internal static class Clope
         }
         #endregion
         RemoveEmptyClusters(ref clusters);
-        var sum2 = timesMs.Sum();
+        var sum2 = timesLocalMs.Sum();
         var a1 = clusters.Select(x => x.Transactions);
         return clusters;
     }
 
     private static double DeltaAdd(Cluster C, int[] t)
     {
-        var dt = DateTime.Now;
         if (C.Count == 0) return t.Length / t.Length.P(r);
 
         var Snew = C.S + t.Length;
+        var now = DateTime.Now;
         var hg = C.Histogram;
         //var Wnew = C.W;
+        timesLocalMs.Add((DateTime.Now - now).TotalMilliseconds);
         var Wnew = hg.Count;
         foreach (var el in t)
         {
             if (!hg.ContainsKey(el)) Wnew++;
         }
         var res = Snew * (C.N + 1) / Wnew.P(r) - C.S * C.N / hg.Count.P(r);
-        timesMs.Add((DateTime.Now - dt).TotalMilliseconds);
         return res;
     }
 
@@ -106,7 +106,7 @@ internal static class Clope
             if (!hg.ContainsKey(el)) Wnew--;
         }
         var res = Snew * (C.N - 1) / Wnew.P(r) - C.S * C.N / hg.Count.P(r);
-        timesMs.Add((DateTime.Now - dt).TotalMilliseconds);
+        timesLocalMs.Add((DateTime.Now - dt).TotalMilliseconds);
         return res;
     }
 

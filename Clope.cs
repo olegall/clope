@@ -3,7 +3,7 @@
 internal static class Clope
 {
     private const double r = 2.6;
-    private static List<double> timesLocalMs = [];
+    public static List<double> timesLocalMs = [];
 
     public static List<Cluster> Clusterize(List<int[]> transactions)
     {
@@ -24,8 +24,6 @@ internal static class Clope
                     maxDelta = da;
                     iBestCluster = i;
                 }
-                //Console.Debug("***");
-                //Debug.WriteLine(end2);
             }
             if (clusters[iBestCluster].Count == 0) AddNewCluster(clusters);
 
@@ -33,6 +31,7 @@ internal static class Clope
         }
         timesLocalMs = [.. timesLocalMs.OrderByDescending(x => x)];
         var sum = timesLocalMs.Sum()/1000;
+        var avg = timesLocalMs.Average(x => x);
         var total = (DateTime.Now - now).TotalSeconds;
         #endregion
         #region Phase2
@@ -78,25 +77,68 @@ internal static class Clope
 
     private static double DeltaAdd(Cluster C, int[] t)
     {
+        var now = DateTime.Now;
         if (C.Count == 0) return t.Length / t.Length.P(r);
 
         var Snew = C.S + t.Length;
-        var now = DateTime.Now;
-        var hg = C.Histogram;
+        var hg = C.Histogram; // value напрямую не учитывается, учитывается группировка (в итоге value), следствием которой есть разный Count
         //var Wnew = C.W;
-        timesLocalMs.Add((DateTime.Now - now).TotalMilliseconds);
+
         var Wnew = hg.Count;
         foreach (var el in t)
         {
             if (!hg.ContainsKey(el)) Wnew++;
         }
-        var res = Snew * (C.N + 1) / Wnew.P(r) - C.S * C.N / hg.Count.P(r);
+        var res = Snew * (C.N + 1) / Wnew.P(r) - C.S * C.N / hg.Count/*C.W*/.P(r);
+        timesLocalMs.Add((DateTime.Now - now).TotalMilliseconds);
         return res;
     }
 
+    //private static double DeltaAdd(Cluster C, int[] t)
+    //{
+    //    var now = DateTime.Now;
+    //    if (C.Count == 0) return t.Length / t.Length.P(r);
+
+    //    var Snew = C.S + t.Length;
+    //    var hg = C.Grouped().ToArray();
+    //    //var Wnew = C.W;
+
+    //    var keys = hg.Select(x => x.Key).ToArray();
+    //    var Wnew = keys.Length;
+
+    //    foreach (var el in t)
+    //    {
+    //        if (!keys.Contains(el)) Wnew++;
+    //    }
+    //    var res = Snew * (C.N + 1) / Wnew.P(r) - C.S * C.N / hg.Length/*C.W*/.P(r);
+    //    timesLocalMs.Add((DateTime.Now - now).TotalMilliseconds);
+    //    timesLocalMs = [.. timesLocalMs.OrderByDescending(x => x)];
+    //    return res;
+    //}
+
+    //private static double DeltaAdd(Cluster C, int[] t)
+    //{
+    //    var now = DateTime.Now;
+    //    if (C.Count == 0) return t.Length / t.Length.P(r);
+
+    //    var Snew = C.S + t.Length;
+    //    var hg = C.GroupedArr();
+    //    //var Wnew = C.W;
+
+    //    var keys = hg;
+    //    var Wnew = keys.Length;
+
+    //    foreach (var el in t)
+    //    {
+    //        if (!keys.Contains(el)) Wnew++;
+    //    }
+    //    var res = Snew * (C.N + 1) / Wnew.P(r) - C.S * C.N / hg.Length/*C.W*/.P(r);
+    //    timesLocalMs.Add((DateTime.Now - now).TotalMilliseconds);
+    //    return res;
+    //}
+
     private static double DeltaRemove(Cluster C, int[] t)
     {
-        var dt = DateTime.Now;
         var Snew = C.S - t.Length;
         var hg = C.Histogram;
         //var Wnew = C.W;
@@ -105,8 +147,7 @@ internal static class Clope
         {
             if (!hg.ContainsKey(el)) Wnew--;
         }
-        var res = Snew * (C.N - 1) / Wnew.P(r) - C.S * C.N / hg.Count.P(r);
-        timesLocalMs.Add((DateTime.Now - dt).TotalMilliseconds);
+        var res = Snew * (C.N - 1) / Wnew.P(r) - C.S * C.N / hg.Count/*C.W*/.P(r);
         return res;
     }
 

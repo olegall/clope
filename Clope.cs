@@ -29,7 +29,7 @@ internal static class Clope
 
             clusters[iBestCluster].Transactions.Add(tr);
         }
-        timesLocalMs = [.. timesLocalMs.OrderByDescending(x => x)];
+        //timesLocalMs = [.. timesLocalMs.OrderByDescending(x => x)];
         var sum = timesLocalMs.Sum()/1000;
         var avg = timesLocalMs.Average(x => x);
         var total = (DateTime.Now - now).TotalSeconds;
@@ -77,11 +77,10 @@ internal static class Clope
 
     private static double DeltaAdd(Cluster C, int[] t)
     {
-        var now = DateTime.Now;
         if (C.Count == 0) return t.Length / t.Length.P(r);
 
         var Snew = C.S + t.Length;
-        var hg = C.Histogram; // value напрямую не учитывается, учитывается группировка (в итоге value), следствием которой есть разный Count
+        var hg = C.Histogram(); // value напрямую не учитывается, учитывается группировка (в итоге value), следствием которой есть разный Count
         //var Wnew = C.W;
 
         var Wnew = hg.Count;
@@ -90,7 +89,6 @@ internal static class Clope
             if (!hg.ContainsKey(el)) Wnew++;
         }
         var res = Snew * (C.N + 1) / Wnew.P(r) - C.S * C.N / hg.Count/*C.W*/.P(r);
-        timesLocalMs.Add((DateTime.Now - now).TotalMilliseconds);
         return res;
     }
 
@@ -140,7 +138,7 @@ internal static class Clope
     private static double DeltaRemove(Cluster C, int[] t)
     {
         var Snew = C.S - t.Length;
-        var hg = C.Histogram;
+        var hg = C.Histogram();
         //var Wnew = C.W;
         var Wnew = hg.Count;
         foreach (var el in t)

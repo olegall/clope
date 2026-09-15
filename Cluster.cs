@@ -4,40 +4,44 @@ internal class Cluster
 {
     public List<IEnumerable<int>> Transactions { get; set; } = [];
 
-    public Dictionary<int, int> Histogram { get => Trs.GroupBy(x => x).ToDictionary(x => x.Key, x => x.Count()); }
-    //public Dictionary<int, int> Histogram()
-    //{
-    //    var grouped = Trs.GroupBy(x => x);
-    //    var now = DateTime.Now;
-    //    var dict = grouped.ToDictionary(x => x.Key, x => x.Count());
-    //    Clope.timesLocalMs.Add((DateTime.Now - now).TotalMilliseconds);
-    //    return dict;
-    //}
+    //public Dictionary<int, int> Histogram { get => Trs.GroupBy(x => x).ToDictionary(x => x.Key, x => x.Count()); }
+    public Dictionary<int, int> Histogram()
+    {
+        var grouped = Trs.GroupBy(x => x);
+        var now = DateTime.Now;
+        var dict = grouped.ToDictionary(x => x.Key, x => x.Count());
+        Clope.timesLocalMs.Add((DateTime.Now - now).TotalMilliseconds);
+        return dict;
+    }
 
     public IEnumerable<IGrouping<int, int>> Grouped() => Trs.GroupBy(x => x);
 
-    public int[] GroupedArr()
+    public void Histogram2()
     {
-        List<List<int>> result = new List<List<int>>();
-        List<int> currentGroup = null;
+        var now = DateTime.Now;
+        var res = new List<int>();
+        var coll = Trs.GroupBy(x => x);
+        //foreach (var item in coll) res.Add(item.Sum(x => x));
+        foreach (var item in coll) res.Add(item.Select(x => x).ElementAt(0));
+        //var dict_ = Trs.GroupBy(x => x).Select(x => x.Select);
+        Clope.timesLocalMs.Add((DateTime.Now - now).TotalMilliseconds);
+    }
 
-        foreach (var item in Trs)
+    public void Histogram3() 
+    {
+        var trs_ = Trs.OrderBy(x => x).ToArray();
+        var result = new List<int>();
+        for (int i = 0; i < trs_.Length - 1; i++)
         {
-            if (currentGroup == null || currentGroup[0] != item)
-            {
-                currentGroup = new List<int>();
-                result.Add(currentGroup);
-            }
-            currentGroup.Add(item);
+            if (trs_[i+1] != trs_[i]) result.Add(trs_[i]);
         }
-        return result.SelectMany(x => x).ToArray();
     }
 
     public int Count => Transactions.Count;
 
     public int S => Trs.Count();
 
-    public int W { get => Histogram.Count; }
+    //public int W { get => Histogram.Count; }
 
     public int N => Transactions.Count;
 

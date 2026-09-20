@@ -1,9 +1,10 @@
 https://loginom.ru/blog/clope
 
 TODO
-- набор данных agarcius-lepiota.data в разы больше (миллионы)
-- в основном тормозит DeltaAdd/DeltaRemove
-
+набор данных agarcius-lepiota.data в разы больше (миллионы)
+в основном тормозит DeltaAdd/DeltaRemove
+явно типизировать пер-е
+ 
 Google
 принципы разработки производительных и быстрых алгоритмов
 

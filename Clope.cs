@@ -14,17 +14,18 @@ internal static class Clope
         AddNewCluster(clusters);
         foreach (var tr in transactions)
         {
-            double maxDelta = 0;
-            var iBestCluster = 0;
-            for (var i = 0; i < clusters.Count; i++)
-            {
-                var da = DeltaAdd(clusters[i], tr);
-                if (da > maxDelta)
-                {
-                    maxDelta = da;
-                    iBestCluster = i;
-                }
-            }
+            //double maxDelta = 0;
+            //var iBestCluster = 0;
+            //for (var i = 0; i < clusters.Count; i++)
+            //{
+            //    var da = DeltaAdd(clusters[i], tr);
+            //    if (da > maxDelta)
+            //    {
+            //        maxDelta = da;
+            //        iBestCluster = i;
+            //    }
+            //}
+            var iBestCluster = clusters.IndexOf(clusters.MaxBy(x => DeltaAdd(x, tr)));
             if (clusters[iBestCluster].Count == 0) AddNewCluster(clusters);
 
             clusters[iBestCluster].Transactions.Add(tr);
@@ -89,6 +90,7 @@ internal static class Clope
             if (!hg.ContainsKey(el)) Wnew++;
         }
         var res = Snew * (C.N + 1) / Wnew.P(r) - C.S * C.N / hg.Count/*C.W*/.P(r);
+        //var res = Snew * (C.N + 1) / Math.Pow(Wnew, r) - C.S * C.N / Math.Pow(hg.Count/*C.W*/, r);
         return res;
     }
 

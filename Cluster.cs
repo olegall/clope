@@ -14,6 +14,24 @@ internal class Cluster
         return dict;
     }
 
+    public IEnumerable<int> Histogram4()
+    {
+        var now = DateTime.Now;
+        var grouped = Trs.GroupBy(x => x); // .ToArray() - задержка
+        var res = grouped.Select(x => x.ElementAt(0));
+        // IEnumerable - почти нет задержки, запрос дёргается (рез-т выполняется) в вызывающем коде - hg.Contains
+        // List - eager loading, есть ощутимая зарержка
+        Clope.timesLocalMs.Add((DateTime.Now - now).TotalMilliseconds);
+        return res;
+    }
+
+    //public List<int> Histogram4()
+    //{
+    //    var grouped = Trs.GroupBy(x => x);
+    //    var res = grouped.Select(x => x.ElementAt(0)).ToList();
+    //    return res;
+    //}
+
     public IEnumerable<IGrouping<int, int>> Grouped() => Trs.GroupBy(x => x);
 
     public void Histogram2()

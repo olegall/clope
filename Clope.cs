@@ -81,15 +81,15 @@ internal static class Clope
         if (C.Count == 0) return t.Length / t.Length.P(r);
 
         var Snew = C.S + t.Length;
-        var hg = C.Histogram(); // value напрямую не учитывается, учитывается группировка (в итоге value), следствием которой есть разный Count
+        var hg = C.Histogram6(); // value напрямую не учитывается, учитывается группировка (в итоге value), следствием которой есть разный Count
         //var Wnew = C.W;
 
-        var Wnew = hg.Count;
+        var Wnew = hg.Count();
         foreach (var el in t)
         {
-            if (!hg.ContainsKey(el)) Wnew++;
+            if (!hg.Contains(el)) Wnew++;
         }
-        var res = Snew * (C.N + 1) / Wnew.P(r) - C.S * C.N / hg.Count/*C.W*/.P(r);
+        var res = Snew * (C.N + 1) / Wnew.P(r) - C.S * C.N / hg.Count()/*C.W*/.P(r);
         //var res = Snew * (C.N + 1) / Math.Pow(Wnew, r) - C.S * C.N / Math.Pow(hg.Count/*C.W*/, r);
         return res;
     }
@@ -140,14 +140,14 @@ internal static class Clope
     private static double DeltaRemove(Cluster C, int[] t)
     {
         var Snew = C.S - t.Length;
-        var hg = C.Histogram();
+        var hg = C.Histogram6();
         //var Wnew = C.W;
-        var Wnew = hg.Count;
+        var Wnew = hg.Count();
         foreach (var el in t)
         {
-            if (!hg.ContainsKey(el)) Wnew--;
+            if (!hg.Contains(el)) Wnew--;
         }
-        var res = Snew * (C.N - 1) / Wnew.P(r) - C.S * C.N / hg.Count/*C.W*/.P(r);
+        var res = Snew * (C.N - 1) / Wnew.P(r) - C.S * C.N / hg.Count()/*C.W*/.P(r);
         return res;
     }
 

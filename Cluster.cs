@@ -61,6 +61,14 @@ internal class Cluster
         }
     }
 
+    public IEnumerable<int> Histogram6()
+    {
+        var now = DateTime.Now;
+        var res = Trs.Distinct().ToArray();
+        Clope.timesLocalMs.Add((DateTime.Now - now).TotalMilliseconds);
+        return res;
+    }
+
     public int Count => Transactions.Count;
 
     public int S => Trs.Count();

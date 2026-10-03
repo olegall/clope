@@ -30,9 +30,7 @@ internal static class Clope
 
             clusters[iBestCluster].Transactions.Add(tr);
         }
-        //timesLocalMs = [.. timesLocalMs.OrderByDescending(x => x)];
         var sum = timesLocalMs.Sum()/1000;
-        var avg = timesLocalMs.Average(x => x);
         var total = (DateTime.Now - now).TotalSeconds;
         #endregion
         #region Phase2
@@ -45,7 +43,6 @@ internal static class Clope
                 double maxDelta = 0;
                 var iBestCluster = 0;
                 var act = clusters.First(x => x.Transactions.Contains(tr));
-                var actIdx = clusters.IndexOf(act);
                 
                 var dr = DeltaRemove(act, tr);
                 for (var i = 0; i < clusters.Count; i++)
@@ -62,7 +59,8 @@ internal static class Clope
                 if (maxDelta > 0)
                 {
                     if (clusters[iBestCluster].Count == 0) AddNewCluster(clusters);
-
+                    
+                    var actIdx = clusters.IndexOf(act);
                     clusters[actIdx].Transactions.Remove(tr);
                     clusters[iBestCluster].Transactions.Add(tr);
                     moved = true;
@@ -71,8 +69,8 @@ internal static class Clope
         }
         #endregion
         RemoveEmptyClusters(ref clusters);
-        var sum2 = timesLocalMs.Sum();
-        var a1 = clusters.Select(x => x.Transactions);
+        var sum2 = timesLocalMs.Sum()/1000;
+        var total2 = (DateTime.Now - now).TotalSeconds;
         return clusters;
     }
 

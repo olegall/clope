@@ -61,6 +61,9 @@ internal class Cluster
         }
     }
 
+    /// <summary>
+    /// TODO int[] Histogram6(), в DeltaAdd hg.Length
+    /// </summary>
     public IEnumerable<int> Histogram6()
     {
         var now = DateTime.Now;
@@ -69,7 +72,7 @@ internal class Cluster
         return res;
     }
 
-    public int Count => Transactions.Count;
+    //public int Count => Transactions.Count;
 
     public int S => Trs.Count();
 

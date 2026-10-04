@@ -26,7 +26,7 @@ internal static class Clope
             //    }
             //}
             var iBestCluster = clusters.IndexOf(clusters.MaxBy(x => DeltaAdd(x, tr)));
-            if (clusters[iBestCluster].Count == 0) AddNewCluster(clusters);
+            if (clusters[iBestCluster].N == 0) AddNewCluster(clusters);
 
             clusters[iBestCluster].Transactions.Add(tr);
         }
@@ -56,9 +56,11 @@ internal static class Clope
                         iBestCluster = i;
                     }
                 }
+                // TODO преобразовать в словарь, искать по и-су
+                //var iBestCluster = clusters.IndexOf(clusters.Where(x => x != act).MaxBy(x => { maxDelta = DeltaAdd(x, tr) + DeltaRemove(act, tr); return maxDelta; }));
                 if (maxDelta > 0)
                 {
-                    if (clusters[iBestCluster].Count == 0) AddNewCluster(clusters);
+                    if (clusters[iBestCluster].N == 0) AddNewCluster(clusters);
                     
                     var actIdx = clusters.IndexOf(act);
                     clusters[actIdx].Transactions.Remove(tr);
@@ -76,7 +78,7 @@ internal static class Clope
 
     private static double DeltaAdd(Cluster C, int[] t)
     {
-        if (C.Count == 0) return t.Length / t.Length.P(r);
+        if (C.N == 0) return t.Length / t.Length.P(r);
 
         var Snew = C.S + t.Length;
         var hg = C.Histogram6(); // value напрямую не учитывается, учитывается группировка (в итоге value), следствием которой есть разный Count

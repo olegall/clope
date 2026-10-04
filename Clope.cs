@@ -154,5 +154,5 @@ internal static class Clope
     private static void AddNewCluster(List<Cluster> clusters) => clusters.Add(new Cluster());
 
     private static void RemoveEmptyClusters(ref List<Cluster> clusters) => 
-        clusters = clusters.Where(x => x.Transactions.Count > 0).ToList();
+        clusters = clusters.Where(x => x.N > 0).ToList();
 }

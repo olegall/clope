@@ -72,8 +72,6 @@ internal class Cluster
         return res;
     }
 
-    //public int Count => Transactions.Count;
-
     public int S => Trs.Count();
 
     //public int W { get => Histogram.Count; }

@@ -1,31 +1,34 @@
-﻿namespace clope;
+﻿using System.Transactions;
+
+namespace clope;
 
 internal static class Clope
 {
-    private const double r = 2.6;
+    private const double rep = 2.6;
     public static List<double> timesLocalMs = [];
-
+    private static readonly Dictionary<int, Dictionary<int, int>> _histogram = [];
+    private static readonly List<int>[] _histograms = new List<int>[1000];
     public static List<Cluster> Clusterize(List<int[]> transactions)
     {
         var now = DateTime.Now;
-
         var clusters = new List<Cluster>();
         #region Phase1
         AddNewCluster(clusters);
         foreach (var tr in transactions)
         {
-            //double maxDelta = 0;
-            //var iBestCluster = 0;
-            //for (var i = 0; i < clusters.Count; i++)
-            //{
-            //    var da = DeltaAdd(clusters[i], tr);
-            //    if (da > maxDelta)
-            //    {
-            //        maxDelta = da;
-            //        iBestCluster = i;
-            //    }
-            //}
-            var iBestCluster = clusters.IndexOf(clusters.MaxBy(x => DeltaAdd(x, tr)));
+            double maxDelta = 0;
+            var iBestCluster = 0;
+            for (var i = 0; i < clusters.Count; i++)
+            {
+                var da = DeltaAdd(clusters[i], tr, i);
+                if (da > maxDelta)
+                {
+                    maxDelta = da;
+                    iBestCluster = i;
+                }
+            }
+            //var iBestCluster = clusters.IndexOf(clusters.MaxBy(x => DeltaAdd(x, tr)));
+
             if (clusters[iBestCluster].N == 0) AddNewCluster(clusters);
 
             clusters[iBestCluster].Transactions.Add(tr);
@@ -43,13 +46,13 @@ internal static class Clope
                 double maxDelta = 0;
                 var iBestCluster = 0;
                 var act = clusters.First(x => x.Transactions.Contains(tr));
-                
+
                 var dr = DeltaRemove(act, tr);
                 for (var i = 0; i < clusters.Count; i++)
                 {
                     if (clusters[i] == act) continue;
 
-                    var da = DeltaAdd(clusters[i], tr);
+                    var da = DeltaAdd(clusters[i], tr, i);
                     if (da + dr > maxDelta)
                     {
                         maxDelta = da + dr;
@@ -61,7 +64,7 @@ internal static class Clope
                 if (maxDelta > 0)
                 {
                     if (clusters[iBestCluster].N == 0) AddNewCluster(clusters);
-                    
+
                     var actIdx = clusters.IndexOf(act);
                     clusters[actIdx].Transactions.Remove(tr);
                     clusters[iBestCluster].Transactions.Add(tr);
@@ -76,20 +79,57 @@ internal static class Clope
         return clusters;
     }
 
-    private static double DeltaAdd(Cluster C, int[] t)
+    private static double DeltaAdd(Cluster C, int[] tr, int clusterId)
     {
-        if (C.N == 0) return t.Length / t.Length.P(r);
+        if (C.N == 0) return tr.Length / tr.Length.P(rep);
 
-        var Snew = C.S + t.Length;
+        var Snew = C.S + tr.Length;
+        #region пересчёт гистограммы
         var hg = C.Histogram6(); // value напрямую не учитывается, учитывается группировка (в итоге value), следствием которой есть разный Count
         //var Wnew = C.W;
 
         var Wnew = hg.Count();
-        foreach (var el in t)
+        foreach (var el in tr)
         {
             if (!hg.Contains(el)) Wnew++;
         }
-        var res = Snew * (C.N + 1) / Wnew.P(r) - C.S * C.N / hg.Count()/*C.W*/.P(r);
+        #endregion
+        //#region Dictionary
+        //if (!_histogram.TryGetValue(clusterId, out var hist))
+        //    _histogram[clusterId] = hist = [];
+        //var now = DateTime.Now;
+        //foreach (var item in C.Transactions.SelectMany(x=>x))
+        //{
+        //    hist.TryGetValue(item, out int c); // новый уникальный элемент
+        //    hist[item] = c + 1; // есть ключ item? берём значение и инкрементируем
+        //}
+        //// в watch hg и _histogram в _histogram д меняться только тот эл-т, который меняется _histogram - это список списков
+        //Clope.timesLocalMs.Add((DateTime.Now - now).TotalMilliseconds);
+        //var Wnew = _histogram[clusterId].Keys.Count();
+        //foreach (var el in tr)
+        //{
+        //    if (!_histogram[clusterId].Keys.Contains(el)) Wnew++;
+        //}
+        //#endregion
+        //#region Array Of Lists
+        //if (_histograms[clusterId] is null)
+        //    _histograms[clusterId] = new HashSet<int>(C.Transactions.SelectMany(x => x)).ToList();
+        //else 
+        //{
+        //    foreach (var item in C.Transactions.SelectMany(x => x))
+        //        if (!_histograms[clusterId].Contains(item)) _histograms[clusterId].Add(item);
+        //}
+        //var Wnew = _histograms[clusterId].Count;
+        //foreach (var el in tr)
+        //{
+        //    if (!_histograms[clusterId].Contains(el)) Wnew++;
+        //}
+        //#endregion
+
+
+        var res = Snew * (C.N + 1) / Wnew.P(rep) - C.S * C.N / hg.Count()/*C.W*/.P(rep);
+        //var res = Snew * (C.N + 1) / Wnew.P(rep) - C.S * C.N / _histogram[clusterId].Count().P(rep);
+        //var res = Snew * (C.N + 1) / Wnew.P(rep) - C.S * C.N / _histograms[clusterId].Count.P(rep);
         //var res = Snew * (C.N + 1) / Math.Pow(Wnew, r) - C.S * C.N / Math.Pow(hg.Count/*C.W*/, r);
         return res;
     }
@@ -137,17 +177,17 @@ internal static class Clope
     //    return res;
     //}
 
-    private static double DeltaRemove(Cluster C, int[] t)
+    private static double DeltaRemove(Cluster C, int[] tr)
     {
-        var Snew = C.S - t.Length;
+        var Snew = C.S - tr.Length;
         var hg = C.Histogram6();
         //var Wnew = C.W;
         var Wnew = hg.Count();
-        foreach (var el in t)
+        foreach (var el in tr)
         {
             if (!hg.Contains(el)) Wnew--;
         }
-        var res = Snew * (C.N - 1) / Wnew.P(r) - C.S * C.N / hg.Count()/*C.W*/.P(r);
+        var res = Snew * (C.N - 1) / Wnew.P(rep) - C.S * C.N / hg.Count()/*C.W*/.P(rep);
         return res;
     }
 

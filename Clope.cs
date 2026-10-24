@@ -35,6 +35,7 @@ internal static class Clope
         }
         var sum = timesLocalMs.Sum()/1000;
         var total = (DateTime.Now - now).TotalSeconds;
+        //Test(clusters);
         #endregion
         #region Phase2
         var moved = true;
@@ -76,6 +77,7 @@ internal static class Clope
         RemoveEmptyClusters(ref clusters);
         var sum2 = timesLocalMs.Sum()/1000;
         var total2 = (DateTime.Now - now).TotalSeconds;
+        Test(clusters);
         return clusters;
     }
 
@@ -97,14 +99,13 @@ internal static class Clope
         //#region Dictionary
         //if (!_histogram.TryGetValue(clusterId, out var hist))
         //    _histogram[clusterId] = hist = [];
-        //var now = DateTime.Now;
-        //foreach (var item in C.Transactions.SelectMany(x=>x))
+        ////foreach (var item in C.Transactions.SelectMany(x => x))
+        //foreach (var item in tr)
         //{
-        //    hist.TryGetValue(item, out int c); // новый уникальный элемент
+        //    hist.TryGetValue(item, out int c); // новый уникальный элемент. c = 0, если гист-ма (словарь) не содержит
         //    hist[item] = c + 1; // есть ключ item? берём значение и инкрементируем
         //}
-        //// в watch hg и _histogram в _histogram д меняться только тот эл-т, который меняется _histogram - это список списков
-        //Clope.timesLocalMs.Add((DateTime.Now - now).TotalMilliseconds);
+        // в watch hg и _histogram в _histogram д меняться только тот эл-т, который меняется _histogram - это список списков
         //var Wnew = _histogram[clusterId].Keys.Count();
         //foreach (var el in tr)
         //{
@@ -114,10 +115,14 @@ internal static class Clope
         //#region Array Of Lists
         //if (_histograms[clusterId] is null)
         //    _histograms[clusterId] = new HashSet<int>(C.Transactions.SelectMany(x => x)).ToList();
-        //else 
+        //else
         //{
+        //    var now = DateTime.Now;
         //    foreach (var item in C.Transactions.SelectMany(x => x))
-        //        if (!_histograms[clusterId].Contains(item)) _histograms[clusterId].Add(item);
+        //    //foreach (var tr_ in C.Transactions)
+        //    //    foreach (var item in tr)
+        //    if (!_histograms[clusterId].Contains(item)) _histograms[clusterId].Add(item);
+        //    timesLocalMs.Add((DateTime.Now - now).TotalMilliseconds);
         //}
         //var Wnew = _histograms[clusterId].Count;
         //foreach (var el in tr)
@@ -195,4 +200,23 @@ internal static class Clope
 
     private static void RemoveEmptyClusters(ref List<Cluster> clusters) => 
         clusters = clusters.Where(x => x.N > 0).ToList();
+
+    private static void Test(List<Cluster> clusters)
+    {
+        var strs = new List<string>();
+        foreach (var cl in clusters)
+        {
+            var str = "";
+            foreach (var tr in cl.Transactions)
+            {
+                foreach (var el in tr)
+                {
+                    str += el < 10 ? "0" + el + " " : el + " ";
+                }
+                str += Environment.NewLine;
+            }
+            strs.Add(str);
+        }
+        //clusters[0].Transactions.Select(tr => tr.Select(el => el))
+    }
 }

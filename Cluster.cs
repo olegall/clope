@@ -2,7 +2,13 @@
 
 internal class Cluster
 {
+    /// <summary>
+    /// Упорядочить каждую транз-ю - см. картинку кластеров и разбиений над ней https://loginom.ru/blog/clope
+    /// TODO IEnumerable<int> Elements
+    /// </summary>
     public List<IEnumerable<int>> Transactions { get; set; } = [];
+
+    //private HashSet<int> HashSet = new HashSet<int>();
 
     //public Dictionary<int, int> Histogram { get => Trs.GroupBy(x => x).ToDictionary(x => x.Key, x => x.Count()); }
     public Dictionary<int, int> Histogram()
@@ -63,12 +69,14 @@ internal class Cluster
 
     /// <summary>
     /// TODO int[] Histogram6(), в DeltaAdd hg.Length
+    /// TODO класс гистограммы, в ней транзакции
     /// </summary>
     public IEnumerable<int> Histogram6()
     {
-        var now = DateTime.Now;
-        var res = Trs.Distinct().ToArray();
-        Clope.timesLocalMs.Add((DateTime.Now - now).TotalMilliseconds);
+        
+        //var res = Trs.Distinct().ToArray();
+        var res = new HashSet<int>(Transactions.SelectMany(x => x)); // уникальные эл-ты
+        
         return res;
     }
 

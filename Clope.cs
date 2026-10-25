@@ -32,9 +32,7 @@ internal static class Clope
             if (clusters[iBestCluster].N == 0) AddNewCluster(clusters);
 
             clusters[iBestCluster].Transactions.Add(tr); //i=0
-
             if (!_histograms.TryGetValue(iBestCluster, out var hist)) _histograms[iBestCluster] = hist = [];
-            //foreach (var item in C.Transactions.SelectMany(x => x))
             foreach (var el in tr)
             {
                 hist.TryGetValue(el, out int c); // новый уникальный элемент. c = 0, если гист-ма (словарь) не содержит
@@ -57,8 +55,8 @@ internal static class Clope
                 double maxDelta = 0;
                 var iBestCluster = 0;
                 var act = clusters.First(x => x.Transactions.Contains(tr));
-
-                var dr = DeltaRemove(act, tr);
+                
+                var dr = DeltaRemove(act, tr, clusters.IndexOf(act));
                 for (var i = 0; i < clusters.Count; i++)
                 {
                     if (clusters[i] == act) continue;
@@ -78,7 +76,19 @@ internal static class Clope
 
                     var actIdx = clusters.IndexOf(act);
                     clusters[actIdx].Transactions.Remove(tr);
+                    if (!_histograms.TryGetValue(actIdx, out var histRm)) _histograms[actIdx] = histRm = [];
+                    foreach (var el in tr)
+                    {
+                        histRm.TryGetValue(el, out int c); // новый уникальный элемент. c = 0, если гист-ма (словарь) не содержит
+                        histRm[el] = c + 1; // есть ключ el? берём значение и инкрементируем
+                    }
                     clusters[iBestCluster].Transactions.Add(tr);
+                    if (!_histograms.TryGetValue(iBestCluster, out var hist)) _histograms[iBestCluster] = hist = [];
+                    foreach (var el in tr)
+                    {
+                        hist.TryGetValue(el, out int c); // новый уникальный элемент. c = 0, если гист-ма (словарь) не содержит
+                        hist[el] = c + 1; // есть ключ el? берём значение и инкрементируем
+                    }
                     moved = true;
                 }
             }
@@ -87,7 +97,7 @@ internal static class Clope
         RemoveEmptyClusters(ref clusters);
         var sum2 = timesLocalMs.Sum()/1000;
         var total2 = (DateTime.Now - now).TotalSeconds;
-        Test(clusters);
+        var a3 = Test(clusters);
         return clusters;
     }
 
@@ -96,26 +106,26 @@ internal static class Clope
         if (C.N == 0) return tr.Length / tr.Length.P(rep);
 
         var Snew = C.S + tr.Length;
-        #region пересчёт гистограммы
-        var hg = C.Histogram6(); // value напрямую не учитывается, учитывается группировка (в итоге value), следствием которой есть разный Count
-        //var Wnew = C.W;
+        //#region пересчёт гистограммы
+        //var hg = C.Histogram6(); // value напрямую не учитывается, учитывается группировка (в итоге value), следствием которой есть разный Count
+        ////var Wnew = C.W;
 
-        var Wnew = hg.Count();
-        foreach (var el in tr)
-        {
-            if (!hg.Contains(el)) Wnew++;
-        }
-        var res = Snew * (C.N + 1) / Wnew.P(rep) - C.S * C.N / hg.Count()/*C.W*/.P(rep);
-        #endregion
-        //#region Dictionary
-        //var Wnew2 = _histograms[clusterId].Keys.Count();
-        //var Snew2 = C.S + tr.Length;
+        //var Wnew = hg.Count();
         //foreach (var el in tr)
         //{
-        //    if (!_histograms[clusterId].Keys.Contains(el)) Wnew2++;
+        //    if (!hg.Contains(el)) Wnew++;
         //}
-        //var res = Snew2 * (C.N + 1) / Wnew2.P(rep) - C.S * C.N / _histograms[clusterId].Count().P(rep);
+        //var res = Snew * (C.N + 1) / Wnew.P(rep) - C.S * C.N / hg.Count()/*C.W*/.P(rep);
         //#endregion
+        #region Dictionary
+        var Wnew2 = _histograms[clusterId].Keys.Count();
+        var Snew2 = C.S + tr.Length;
+        foreach (var el in tr)
+        {
+            if (!_histograms[clusterId].Keys.Contains(el)) Wnew2++;
+        }
+        var res = Snew2 * (C.N + 1) / Wnew2.P(rep) - C.S * C.N / _histograms[clusterId].Count().P(rep);
+        #endregion
         //#region Array Of Lists
         //if (_histograms[clusterId] is null)
         //    _histograms[clusterId] = new HashSet<int>(C.Transactions.SelectMany(x => x)).ToList();
@@ -183,17 +193,26 @@ internal static class Clope
     //    return res;
     //}
 
-    private static double DeltaRemove(Cluster C, int[] tr)
+    private static double DeltaRemove(Cluster C, int[] tr, int clusterId)
     {
-        var Snew = C.S - tr.Length;
-        var hg = C.Histogram6();
-        //var Wnew = C.W;
-        var Wnew = hg.Count();
+        //var Snew = C.S - tr.Length;
+        //var hg = C.Histogram6();
+        ////var Wnew = C.W;
+        //var Wnew = hg.Count();
+        //foreach (var el in tr)
+        //{
+        //    if (!hg.Contains(el)) Wnew--;
+        //}
+        //var res = Snew * (C.N - 1) / Wnew.P(rep) - C.S * C.N / hg.Count()/*C.W*/.P(rep);
+        #region Dictionary
+        var Wnew2 = _histograms[clusterId].Keys.Count();
+        var Snew2 = C.S - tr.Length;
         foreach (var el in tr)
         {
-            if (!hg.Contains(el)) Wnew--;
+            if (!_histograms[clusterId].Keys.Contains(el)) Wnew2--;
         }
-        var res = Snew * (C.N - 1) / Wnew.P(rep) - C.S * C.N / hg.Count()/*C.W*/.P(rep);
+        var res = Snew2 * (C.N - 1) / Wnew2.P(rep) - C.S * C.N / _histograms[clusterId].Count().P(rep);
+        #endregion
         return res;
     }
 
@@ -202,7 +221,7 @@ internal static class Clope
     private static void RemoveEmptyClusters(ref List<Cluster> clusters) => 
         clusters = clusters.Where(x => x.N > 0).ToList();
 
-    private static void Test(List<Cluster> clusters)
+    private static List<string> Test(List<Cluster> clusters)
     {
         var strs = new List<string>();
         foreach (var cl in clusters)
@@ -218,6 +237,7 @@ internal static class Clope
             }
             strs.Add(str);
         }
+        return strs;
         //clusters[0].Transactions.Select(tr => tr.Select(el => el))
     }
 }

@@ -86,5 +86,5 @@ internal class Cluster
 
     public int N => Transactions.Count;
 
-    private IEnumerable<int> Trs => Transactions.SelectMany(x => x);
+    public IEnumerable<int> Trs => Transactions.SelectMany(x => x);
 }

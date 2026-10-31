@@ -1,6 +1,4 @@
-﻿using System.Transactions;
-
-namespace clope;
+﻿namespace clope;
 
 internal static class Clope
 {
@@ -29,10 +27,10 @@ internal static class Clope
             }
             //var iBestCluster = clusters.IndexOf(clusters.MaxBy(x => DeltaAdd(x, tr)));
 
-            if (clusters[iBestCluster].N == 0) AddNewCluster(clusters);
+            AddNewClusterIfBestIsEmpty(clusters, iBestCluster);
 
             clusters[iBestCluster].Transactions.Add(tr); //i=0
-            if (!_histograms.TryGetValue(iBestCluster, out var hist)) _histograms[iBestCluster] = hist = [];
+            if (!_histograms.TryGetValue(iBestCluster, out var hist)) _histograms[iBestCluster] = hist = []; // информация о транзакциях не сохраняется. она в кластере
             foreach (var el in tr)
             {
                 hist.TryGetValue(el, out int c); // новый уникальный элемент. c = 0, если гист-ма (словарь) не содержит
@@ -54,7 +52,7 @@ internal static class Clope
             {
                 double maxDelta = 0;
                 var iBestCluster = 0;
-                var act = clusters.First(x => x.Transactions.Contains(tr));
+                var act = clusters.First(x => x.Transactions.Contains(tr)); // какой-то кластер в любом случае будет содержать тр-ю, т.к. кластеры сформированы тр-ми в фазе 1
                 
                 var dr = DeltaRemove(act, tr, clusters.IndexOf(act));
                 for (var i = 0; i < clusters.Count; i++)
@@ -72,7 +70,7 @@ internal static class Clope
                 //var iBestCluster = clusters.IndexOf(clusters.Where(x => x != act).MaxBy(x => { maxDelta = DeltaAdd(x, tr) + DeltaRemove(act, tr); return maxDelta; }));
                 if (maxDelta > 0)
                 {
-                    if (clusters[iBestCluster].N == 0) AddNewCluster(clusters);
+                    AddNewClusterIfBestIsEmpty(clusters, iBestCluster);
 
                     var actIdx = clusters.IndexOf(act);
                     clusters[actIdx].Transactions.Remove(tr);
@@ -101,6 +99,15 @@ internal static class Clope
         return clusters;
     }
 
+    /// <summary>
+    /// Лучший кластер - пустой? (транзакция максимально отличается от транзакций в других кластерах). Текущий пустой кластер теперь задействуется. Нужен новый пустой
+    /// TODO неочевидно. Переписать, см. оф доку put t in an existing cluster or a new cluster
+    /// </summary>
+    private static void AddNewClusterIfBestIsEmpty(List<Cluster> clusters, int iBestCluster)
+    {
+        if (clusters[iBestCluster].N == 0) AddNewCluster(clusters);
+    }
+
     private static double DeltaAdd(Cluster C, int[] tr, int clusterId)
     {
         if (C.N == 0) return tr.Length / tr.Length.P(rep);
@@ -120,6 +127,7 @@ internal static class Clope
         #region Dictionary
         var Wnew2 = _histograms[clusterId].Keys.Count();
         var Snew2 = C.S + tr.Length;
+        //var Snew2 = _histograms[clusterId].Values.Sum() + tr.Length;
         foreach (var el in tr)
         {
             if (!_histograms[clusterId].Keys.Contains(el)) Wnew2++;

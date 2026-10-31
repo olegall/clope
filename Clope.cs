@@ -53,8 +53,8 @@ internal static class Clope
                 double maxDelta = 0;
                 var iBestCluster = 0;
                 var act = clusters.First(x => x.Transactions.Contains(tr)); // какой-то кластер в любом случае будет содержать тр-ю, т.к. кластеры сформированы тр-ми в фазе 1
-                
-                var dr = DeltaRemove(act, tr, clusters.IndexOf(act));
+                var actIdx = clusters.IndexOf(act);
+                var dr = DeltaRemove(act, tr, actIdx);
                 for (var i = 0; i < clusters.Count; i++)
                 {
                     if (clusters[i] == act) continue;
@@ -72,20 +72,19 @@ internal static class Clope
                 {
                     AddNewClusterIfBestIsEmpty(clusters, iBestCluster);
 
-                    var actIdx = clusters.IndexOf(act);
-                    clusters[actIdx].Transactions.Remove(tr);
+                    act.Transactions.Remove(tr);
                     if (!_histograms.TryGetValue(actIdx, out var histRm)) _histograms[actIdx] = histRm = [];
                     foreach (var el in tr)
                     {
                         histRm.TryGetValue(el, out int c); // новый уникальный элемент. c = 0, если гист-ма (словарь) не содержит
-                        histRm[el] = c + 1; // есть ключ el? берём значение и инкрементируем
+                        histRm[el] = c++; // есть ключ el? берём значение и инкрементируем
                     }
                     clusters[iBestCluster].Transactions.Add(tr);
                     if (!_histograms.TryGetValue(iBestCluster, out var hist)) _histograms[iBestCluster] = hist = [];
                     foreach (var el in tr)
                     {
                         hist.TryGetValue(el, out int c); // новый уникальный элемент. c = 0, если гист-ма (словарь) не содержит
-                        hist[el] = c + 1; // есть ключ el? берём значение и инкрементируем
+                        hist[el] = c++; // есть ключ el? берём значение и инкрементируем
                     }
                     moved = true;
                 }

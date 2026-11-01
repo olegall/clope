@@ -21,6 +21,27 @@ C# алгоритм clope гистограмма дб одна на весь алгоритм и не создаваться заново?
 
 развитие алгоритма с учётом больших наборов данных (миллион)
 
+Архитектура
+Класс Cluster
+    _histograms -> _OCCs
+    Dictionary<int, Dictionary<int, int>> _histograms -> class OCC Dictionary<el, value>; Dictionary<clusterId, OCC>
+	AddTransaction - враппер
+		1. clusters[iBestCluster].Transactions.Add(tr);
+        2. if (!_histograms.TryGetValue(iBestCluster, out var hist)) _histograms[iBestCluster] = hist = [];
+        foreach (var el in tr)
+        {
+            hist.TryGetValue(el, out int c); // новый уникальный элемент. c = 0, если гист-ма (словарь) не содержит
+            hist[el] = c++; // есть ключ el? берём значение и инкрементируем
+        }
+		Обернуть в UpdateOcc
+	RemoveTransaction
+	Id. заполняется из for (var i = 0; i < clusters.Count; i++). Исп-ся на выходе
+Классы Cluster + Histogram vs объединить. Скорее всего объединять не надо - гист-ма - геометр представление кластера
+исп-ть IEquatable - проект Clope.sln
+Transaction.cs - поле el - элемент
+на выходе cluterId-transactionId
+
+
 Тестирование
 в VS просмотр по return clusters;, скопировать гистограммы в VS, выделять области, д.б. общие области у соседних кластеров
 29.08.26

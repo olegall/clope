@@ -4,7 +4,7 @@ internal static class Clope
 {
     private const double rep = 2.6;
     public static List<double> timesLocalMs = [];
-    private static readonly Dictionary<int, Dictionary<int, int>> _histograms = []; // Dictionary<ClusterId, Dictionary<el, Occ>>
+    private static readonly Dictionary<int, Dictionary<int, int>> _clusterIdToHist = []; // Dictionary<ClusterId, Dictionary<el, Occ>>
     //private static readonly List<int>[] _histograms = new List<int>[1000];
     public static List<Cluster> Clusterize(List<int[]> transactions)
     {
@@ -30,17 +30,17 @@ internal static class Clope
             AddNewClusterIfBestIsEmpty(clusters, iBestCluster);
 
             clusters[iBestCluster].Transactions.Add(tr); //i=0
-            if (!_histograms.TryGetValue(iBestCluster, out var hist)) _histograms[iBestCluster] = hist = []; // информация о транзакциях не сохраняется. она в кластере
-            foreach (var el in tr)
+            if (!_clusterIdToHist.TryGetValue(iBestCluster, out var hist)) _clusterIdToHist[iBestCluster] = hist = []; // информация о транзакциях не сохраняется. она в кластере
+            foreach (var item in tr)
             {
-                hist.TryGetValue(el, out int c); // новый уникальный элемент. c = 0, если гист-ма (словарь) не содержит
-                hist[el] = c++; // есть ключ el? берём значение и инкрементируем
+                hist.TryGetValue(item, out int occ); // новый уникальный элемент. c = 0, если гист-ма (словарь) не содержит
+                hist[item] = occ++; // есть ключ el? берём значение и инкрементируем
             }
         }
         var sum = timesLocalMs.Sum()/1000;
         var total = (DateTime.Now - now).TotalSeconds;
         var a1 = clusters[0].Trs.ToArray().OrderBy(x => x);
-        var a2 = _histograms[0].OrderBy(x => x.Key);
+        var a2 = _clusterIdToHist[0].OrderBy(x => x.Key);
         //Test(clusters);
         #endregion
         #region Phase2
@@ -73,18 +73,18 @@ internal static class Clope
                     AddNewClusterIfBestIsEmpty(clusters, iBestCluster);
 
                     act.Transactions.Remove(tr);
-                    if (!_histograms.TryGetValue(actIdx, out var histRm)) _histograms[actIdx] = histRm = [];
-                    foreach (var el in tr)
+                    if (!_clusterIdToHist.TryGetValue(actIdx, out var histRm)) _clusterIdToHist[actIdx] = histRm = [];
+                    foreach (var item in tr)
                     {
-                        histRm.TryGetValue(el, out int c); // Occ новый уникальный элемент. c = 0, если гист-ма (словарь) не содержит
-                        histRm[el] = c++; // есть ключ el? берём значение и инкрементируем
+                        histRm.TryGetValue(item, out int occ); // Occ новый уникальный элемент. c = 0, если гист-ма (словарь) не содержит
+                        histRm[item] = occ++; // есть ключ el? берём значение и инкрементируем
                     }
                     clusters[iBestCluster].Transactions.Add(tr);
-                    if (!_histograms.TryGetValue(iBestCluster, out var hist)) _histograms[iBestCluster] = hist = [];
-                    foreach (var el in tr)
+                    if (!_clusterIdToHist.TryGetValue(iBestCluster, out var hist)) _clusterIdToHist[iBestCluster] = hist = [];
+                    foreach (var item in tr)
                     {
-                        hist.TryGetValue(el, out int c); // новый уникальный элемент. c = 0, если гист-ма (словарь) не содержит
-                        hist[el] = c++; // есть ключ el? берём значение и инкрементируем
+                        hist.TryGetValue(item, out int occ); // новый уникальный элемент. c = 0, если гист-ма (словарь) не содержит
+                        hist[item] = occ++; // есть ключ el? берём значение и инкрементируем
                     }
                     moved = true;
                 }
@@ -124,14 +124,14 @@ internal static class Clope
         //var res = Snew * (C.N + 1) / Wnew.P(rep) - C.S * C.N / hg.Count()/*C.W*/.P(rep);
         //#endregion
         #region Dictionary
-        var Wnew2 = _histograms[clusterId].Keys.Count();
+        var Wnew2 = _clusterIdToHist[clusterId].Keys.Count();
         var Snew2 = C.S + tr.Length;
         //var Snew2 = _histograms[clusterId].Values.Sum() + tr.Length;
         foreach (var el in tr)
         {
-            if (!_histograms[clusterId].Keys.Contains(el)) Wnew2++;
+            if (!_clusterIdToHist[clusterId].Keys.Contains(el)) Wnew2++;
         }
-        var res = Snew2 * (C.N + 1) / Wnew2.P(rep) - C.S * C.N / _histograms[clusterId].Count().P(rep);
+        var res = Snew2 * (C.N + 1) / Wnew2.P(rep) - C.S * C.N / _clusterIdToHist[clusterId].Count().P(rep);
         #endregion
         //#region Array Of Lists
         //if (_histograms[clusterId] is null)
@@ -212,13 +212,13 @@ internal static class Clope
         //}
         //var res = Snew * (C.N - 1) / Wnew.P(rep) - C.S * C.N / hg.Count()/*C.W*/.P(rep);
         #region Dictionary
-        var Wnew2 = _histograms[clusterId].Keys.Count();
+        var Wnew2 = _clusterIdToHist[clusterId].Keys.Count();
         var Snew2 = C.S - tr.Length;
         foreach (var el in tr)
         {
-            if (!_histograms[clusterId].Keys.Contains(el)) Wnew2--;
+            if (!_clusterIdToHist[clusterId].Keys.Contains(el)) Wnew2--;
         }
-        var res = Snew2 * (C.N - 1) / Wnew2.P(rep) - C.S * C.N / _histograms[clusterId].Count().P(rep);
+        var res = Snew2 * (C.N - 1) / Wnew2.P(rep) - C.S * C.N / _clusterIdToHist[clusterId].Count().P(rep);
         #endregion
         return res;
     }

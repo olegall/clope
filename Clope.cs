@@ -4,7 +4,7 @@ internal static class Clope
 {
     private const double rep = 2.6;
     public static List<double> timesLocalMs = [];
-    private static readonly Dictionary<int, Dictionary<int, int>> _clusterIdToHist = []; // Dictionary<ClusterId, Dictionary<el, Occ>>
+    private static readonly Dictionary<int, Dictionary<int, int>> _clusterIdToHist = []; // Dictionary<ClusterId, Dictionary<item, Occ>>
     //private static readonly List<int>[] _histograms = new List<int>[1000];
     public static List<Cluster> Clusterize(List<int[]> transactions)
     {
@@ -77,7 +77,7 @@ internal static class Clope
                     foreach (var item in tr)
                     {
                         histRm.TryGetValue(item, out int occ); // Occ новый уникальный элемент. c = 0, если гист-ма (словарь) не содержит
-                        histRm[item] = occ++; // есть ключ el? берём значение и инкрементируем
+                        histRm[item] = occ--/*++*/; // есть ключ el? берём значение и инкрементируем
                     }
                     clusters[iBestCluster].Transactions.Add(tr);
                     if (!_clusterIdToHist.TryGetValue(iBestCluster, out var hist)) _clusterIdToHist[iBestCluster] = hist = [];

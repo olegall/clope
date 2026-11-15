@@ -37,10 +37,7 @@ internal static class Clope
                 hist[item] = occ++; // есть ключ el? берём значение и инкрементируем
             }
         }
-        var sum = timesLocalMs.Sum()/1000;
         var total = (DateTime.Now - now).TotalSeconds;
-        var a1 = clusters[0].Trs.ToArray().OrderBy(x => x);
-        var a2 = _clusterIdToHist[0].OrderBy(x => x.Key);
         //Test(clusters);
         #endregion
         #region Phase2
@@ -112,17 +109,6 @@ internal static class Clope
         if (C.N == 0) return tr.Length / tr.Length.P(rep);
 
         var Snew = C.S + tr.Length;
-        //#region пересчёт гистограммы
-        //var hg = C.Histogram6(); // value напрямую не учитывается, учитывается группировка (в итоге value), следствием которой есть разный Count
-        ////var Wnew = C.W;
-
-        //var Wnew = hg.Count();
-        //foreach (var el in tr)
-        //{
-        //    if (!hg.Contains(el)) Wnew++;
-        //}
-        //var res = Snew * (C.N + 1) / Wnew.P(rep) - C.S * C.N / hg.Count()/*C.W*/.P(rep);
-        //#endregion
         #region Dictionary
         var Wnew2 = _clusterIdToHist[clusterId].Keys.Count();
         var Snew2 = C.S + tr.Length;
@@ -133,84 +119,12 @@ internal static class Clope
         }
         var res = Snew2 * (C.N + 1) / Wnew2.P(rep) - C.S * C.N / _clusterIdToHist[clusterId].Count().P(rep);
         #endregion
-        //#region Array Of Lists
-        //if (_histograms[clusterId] is null)
-        //    _histograms[clusterId] = new HashSet<int>(C.Transactions.SelectMany(x => x)).ToList();
-        //else
-        //{
-        //    var now = DateTime.Now;
-        //    foreach (var item in C.Transactions.SelectMany(x => x))
-        //    //foreach (var tr_ in C.Transactions)
-        //    //    foreach (var item in tr)
-        //    if (!_histograms[clusterId].Contains(item)) _histograms[clusterId].Add(item);
-        //    timesLocalMs.Add((DateTime.Now - now).TotalMilliseconds);
-        //}
-        //var Wnew = _histograms[clusterId].Count;
-        //foreach (var el in tr)
-        //{
-        //    if (!_histograms[clusterId].Contains(el)) Wnew++;
-        //}
-        //var res = Snew * (C.N + 1) / Wnew.P(rep) - C.S * C.N / _histograms[clusterId].Count.P(rep);
-        //#endregion
-
         //var res = Snew * (C.N + 1) / Math.Pow(Wnew, r) - C.S * C.N / Math.Pow(hg.Count/*C.W*/, r);
         return res;
     }
 
-    //private static double DeltaAdd(Cluster C, int[] t)
-    //{
-    //    var now = DateTime.Now;
-    //    if (C.Count == 0) return t.Length / t.Length.P(r);
-
-    //    var Snew = C.S + t.Length;
-    //    var hg = C.Grouped().ToArray();
-    //    //var Wnew = C.W;
-
-    //    var keys = hg.Select(x => x.Key).ToArray();
-    //    var Wnew = keys.Length;
-
-    //    foreach (var el in t)
-    //    {
-    //        if (!keys.Contains(el)) Wnew++;
-    //    }
-    //    var res = Snew * (C.N + 1) / Wnew.P(r) - C.S * C.N / hg.Length/*C.W*/.P(r);
-    //    timesLocalMs.Add((DateTime.Now - now).TotalMilliseconds);
-    //    timesLocalMs = [.. timesLocalMs.OrderByDescending(x => x)];
-    //    return res;
-    //}
-
-    //private static double DeltaAdd(Cluster C, int[] t)
-    //{
-    //    var now = DateTime.Now;
-    //    if (C.Count == 0) return t.Length / t.Length.P(r);
-
-    //    var Snew = C.S + t.Length;
-    //    var hg = C.GroupedArr();
-    //    //var Wnew = C.W;
-
-    //    var keys = hg;
-    //    var Wnew = keys.Length;
-
-    //    foreach (var el in t)
-    //    {
-    //        if (!keys.Contains(el)) Wnew++;
-    //    }
-    //    var res = Snew * (C.N + 1) / Wnew.P(r) - C.S * C.N / hg.Length/*C.W*/.P(r);
-    //    timesLocalMs.Add((DateTime.Now - now).TotalMilliseconds);
-    //    return res;
-    //}
-
     private static double DeltaRemove(Cluster C, int[] tr, int clusterId)
     {
-        //var Snew = C.S - tr.Length;
-        //var hg = C.Histogram6();
-        ////var Wnew = C.W;
-        //var Wnew = hg.Count();
-        //foreach (var el in tr)
-        //{
-        //    if (!hg.Contains(el)) Wnew--;
-        //}
-        //var res = Snew * (C.N - 1) / Wnew.P(rep) - C.S * C.N / hg.Count()/*C.W*/.P(rep);
         #region Dictionary
         var Wnew2 = _clusterIdToHist[clusterId].Keys.Count();
         var Snew2 = C.S - tr.Length;

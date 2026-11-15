@@ -30,15 +30,25 @@ internal static class Clope
             AddNewClusterIfBestIsEmpty(clusters, iBestCluster);
 
             clusters[iBestCluster].Transactions.Add(tr); //i=0
-            if (!_clusterIdToHist.TryGetValue(iBestCluster, out var hist)) _clusterIdToHist[iBestCluster] = hist = []; // информация о транзакциях не сохраняется. она в кластере
-            foreach (var item in tr)
-            {
-                hist.TryGetValue(item, out int occ); // новый уникальный элемент. c = 0, если гист-ма (словарь) не содержит
-                hist[item] = occ++; // есть ключ el? берём значение и инкрементируем
-            }
+
+            //if (!_clusterIdToHist.TryGetValue(iBestCluster, out var hist)) _clusterIdToHist[iBestCluster] = hist = []; // информация о транзакциях не сохраняется. она в кластере
+            //foreach (var item in tr)
+            //{
+            //    hist.TryGetValue(item, out int occ); // гист-ма (словарь) не содержит item? новый уникальный элемент occ по умолчанию = 0
+            //    hist[item] = occ++; // есть ключ el? берём значение и инкрементируем
+            //}
+
+            //var hist = clusters[iBestCluster].Hist; // TODO hist -> clusters[iBestCluster].Hist
+            //if (clusters[iBestCluster].Hist is null) clusters[iBestCluster].Hist = [];
+            //foreach (var item in tr)
+            //{
+            //    clusters[iBestCluster].Hist.TryGetValue(item, out int occ); // новый уникальный элемент. c = 0, если гист-ма (словарь) не содержит
+            //    clusters[iBestCluster].Hist[item] = occ++; // есть ключ el? берём значение и инкрементируем
+            //}
+            clusters[iBestCluster].RecalcAdd(tr);
         }
         var total = (DateTime.Now - now).TotalSeconds;
-        //Test(clusters);
+        //var phase_1_res = Test(clusters);
         #endregion
         #region Phase2
         var moved = true;
@@ -70,19 +80,21 @@ internal static class Clope
                     AddNewClusterIfBestIsEmpty(clusters, iBestCluster);
 
                     act.Transactions.Remove(tr);
-                    if (!_clusterIdToHist.TryGetValue(actIdx, out var histRm)) _clusterIdToHist[actIdx] = histRm = [];
-                    foreach (var item in tr)
-                    {
-                        histRm.TryGetValue(item, out int occ); // Occ новый уникальный элемент. c = 0, если гист-ма (словарь) не содержит
-                        histRm[item] = occ--/*++*/; // есть ключ el? берём значение и инкрементируем
-                    }
+                    act.RecalcRemove(tr);
+                    //if (!_clusterIdToHist.TryGetValue(actIdx, out var histRm)) _clusterIdToHist[actIdx] = histRm = [];
+                    //foreach (var item in tr)
+                    //{
+                    //    histRm.TryGetValue(item, out int occ); // Occ новый уникальный элемент. c = 0, если гист-ма (словарь) не содержит
+                    //    histRm[item] = occ--/*++*/; // есть ключ el? берём значение и инкрементируем
+                    //}
                     clusters[iBestCluster].Transactions.Add(tr);
-                    if (!_clusterIdToHist.TryGetValue(iBestCluster, out var hist)) _clusterIdToHist[iBestCluster] = hist = [];
-                    foreach (var item in tr)
-                    {
-                        hist.TryGetValue(item, out int occ); // новый уникальный элемент. c = 0, если гист-ма (словарь) не содержит
-                        hist[item] = occ++; // есть ключ el? берём значение и инкрементируем
-                    }
+                    clusters[iBestCluster].RecalcAdd(tr);
+                    //if (!_clusterIdToHist.TryGetValue(iBestCluster, out var hist)) _clusterIdToHist[iBestCluster] = hist = [];
+                    //foreach (var item in tr)
+                    //{
+                    //    hist.TryGetValue(item, out int occ); // новый уникальный элемент. c = 0, если гист-ма (словарь) не содержит
+                    //    hist[item] = occ++; // есть ключ el? берём значение и инкрементируем
+                    //}
                     moved = true;
                 }
             }
@@ -91,7 +103,7 @@ internal static class Clope
         RemoveEmptyClusters(ref clusters);
         var sum2 = timesLocalMs.Sum()/1000;
         var total2 = (DateTime.Now - now).TotalSeconds;
-        var a3 = Test(clusters);
+        var phase_1_2_res = Test(clusters);
         return clusters;
     }
 
@@ -109,15 +121,24 @@ internal static class Clope
         if (C.N == 0) return tr.Length / tr.Length.P(rep);
 
         var Snew = C.S + tr.Length;
-        #region Dictionary
-        var Wnew2 = _clusterIdToHist[clusterId].Keys.Count();
+        //#region Dictionary
+        //var Wnew2 = _clusterIdToHist[clusterId].Keys.Count();
+        //var Snew2 = C.S + tr.Length;
+        ////var Snew2 = _histograms[clusterId].Values.Sum() + tr.Length;
+        //foreach (var el in tr)
+        //{
+        //    if (!_clusterIdToHist[clusterId].Keys.Contains(el)) Wnew2++;
+        //}
+        //var res = Snew2 * (C.N + 1) / Wnew2.P(rep) - C.S * C.N / _clusterIdToHist[clusterId].Count().P(rep);
+        //#endregion
+        #region Cluster Histogram
+        var Wnew2 = C.Hist.Keys.Count();
         var Snew2 = C.S + tr.Length;
-        //var Snew2 = _histograms[clusterId].Values.Sum() + tr.Length;
-        foreach (var el in tr)
+        foreach (var item in tr)
         {
-            if (!_clusterIdToHist[clusterId].Keys.Contains(el)) Wnew2++;
+            if (!C.Hist.Keys.Contains(item)) Wnew2++;
         }
-        var res = Snew2 * (C.N + 1) / Wnew2.P(rep) - C.S * C.N / _clusterIdToHist[clusterId].Count().P(rep);
+        var res = Snew2 * (C.N + 1) / Wnew2.P(rep) - C.S * C.N / C.Hist.Count().P(rep);
         #endregion
         //var res = Snew * (C.N + 1) / Math.Pow(Wnew, r) - C.S * C.N / Math.Pow(hg.Count/*C.W*/, r);
         return res;
@@ -125,14 +146,23 @@ internal static class Clope
 
     private static double DeltaRemove(Cluster C, int[] tr, int clusterId)
     {
-        #region Dictionary
-        var Wnew2 = _clusterIdToHist[clusterId].Keys.Count();
+        //#region Dictionary
+        //var Wnew2 = _clusterIdToHist[clusterId].Keys.Count();
+        //var Snew2 = C.S - tr.Length;
+        //foreach (var el in tr)
+        //{
+        //    if (!_clusterIdToHist[clusterId].Keys.Contains(el)) Wnew2--;
+        //}
+        //var res = Snew2 * (C.N - 1) / Wnew2.P(rep) - C.S * C.N / _clusterIdToHist[clusterId].Count().P(rep);
+        //#endregion
+        #region Cluster Histogram
+        var Wnew2 = C.Hist.Keys.Count();
         var Snew2 = C.S - tr.Length;
-        foreach (var el in tr)
+        foreach (var item in tr)
         {
-            if (!_clusterIdToHist[clusterId].Keys.Contains(el)) Wnew2--;
+            if (!C.Hist.Keys.Contains(item)) Wnew2--;
         }
-        var res = Snew2 * (C.N - 1) / Wnew2.P(rep) - C.S * C.N / _clusterIdToHist[clusterId].Count().P(rep);
+        var res = Snew2 * (C.N - 1) / Wnew2.P(rep) - C.S * C.N / C.Hist.Count().P(rep);
         #endregion
         return res;
     }

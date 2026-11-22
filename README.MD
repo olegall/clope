@@ -67,6 +67,11 @@ internal class Cluster
     public int Id { get; set; }
     private Dictionary<Dictionary<int, int>> _clusterIdToHist = [];
 
+FROM
+public List<IEnumerable<int>> Transactions { get; set; } = [];
+TO
+список объектов тр-и. об-т тр-и: индекс, тр-я IEnumerable<int>
+
 Тестирование
 Результат метода Test в VS прокрутить сверху вниз. Столбцы должны меняться
 Внизу области широкие

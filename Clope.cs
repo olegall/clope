@@ -4,12 +4,14 @@ internal static class Clope
 {
     private const double rep = 2.6;
     public static List<double> timesLocalMs = [];
-    private static readonly Dictionary<int, Dictionary<int, int>> _clusterIdToHist = []; // Dictionary<ClusterId, Dictionary<item, Occ>>
     //private static readonly List<int>[] _histograms = new List<int>[1000];
     public static List<Cluster> Clusterize(List<int[]> transactions)
     {
         var now = DateTime.Now;
         var clusters = new List<Cluster>();
+        var transactionOut = new List<Output>();
+        for (int i = 0; i < transactions.Count; i++) transactionOut.Add(new Output { TransactionIdx = i});
+
         #region Phase1
         AddNewCluster(clusters);
         foreach (var tr in transactions) // for по кластерам внешний, for по транзакциям внутренний
@@ -31,6 +33,7 @@ internal static class Clope
 
             clusters[iBestCluster].Transactions.Add(tr); //i=0
 
+            #region legacy
             //if (!_clusterIdToHist.TryGetValue(iBestCluster, out var hist)) _clusterIdToHist[iBestCluster] = hist = []; // информация о транзакциях не сохраняется. она в кластере
             //foreach (var item in tr)
             //{
@@ -45,9 +48,19 @@ internal static class Clope
             //    clusters[iBestCluster].Hist.TryGetValue(item, out int occ); // новый уникальный элемент. c = 0, если гист-ма (словарь) не содержит
             //    clusters[iBestCluster].Hist[item] = occ++; // есть ключ el? берём значение и инкрементируем
             //}
+            #endregion
             clusters[iBestCluster].RecalcAdd(tr);
+
+            var idx = transactions.IndexOf(tr);
+            transactionOut.First(x => x.TransactionIdx == idx).ClusterId = iBestCluster;
         }
         var total = (DateTime.Now - now).TotalSeconds;
+
+        var cluster0 = transactionOut.Where(x => x.ClusterId == 0);
+        var cluster2 = transactionOut.Where(x => x.ClusterId == 2);
+        var cluster10 = transactionOut.Where(x => x.ClusterId == 10);
+        var cluster25 = transactionOut.Where(x => x.ClusterId == 25);
+        var cluster26 = transactionOut.Where(x => x.ClusterId == 26);
         //var phase_1_res = Test(clusters);
         #endregion
         #region Phase2
@@ -81,20 +94,27 @@ internal static class Clope
 
                     act.Transactions.Remove(tr);
                     act.RecalcRemove(tr);
+                    #region legacy
                     //if (!_clusterIdToHist.TryGetValue(actIdx, out var histRm)) _clusterIdToHist[actIdx] = histRm = [];
                     //foreach (var item in tr)
                     //{
                     //    histRm.TryGetValue(item, out int occ); // Occ новый уникальный элемент. c = 0, если гист-ма (словарь) не содержит
                     //    histRm[item] = occ--/*++*/; // есть ключ el? берём значение и инкрементируем
                     //}
+                    #endregion
                     clusters[iBestCluster].Transactions.Add(tr);
                     clusters[iBestCluster].RecalcAdd(tr);
+
+                    var idx = transactions.IndexOf(tr);
+                    transactionOut.First(x => x.TransactionIdx == idx).ClusterId = iBestCluster;
+                    #region legacy
                     //if (!_clusterIdToHist.TryGetValue(iBestCluster, out var hist)) _clusterIdToHist[iBestCluster] = hist = [];
                     //foreach (var item in tr)
                     //{
                     //    hist.TryGetValue(item, out int occ); // новый уникальный элемент. c = 0, если гист-ма (словарь) не содержит
                     //    hist[item] = occ++; // есть ключ el? берём значение и инкрементируем
                     //}
+                    #endregion
                     moved = true;
                 }
             }
@@ -104,6 +124,12 @@ internal static class Clope
         var sum2 = timesLocalMs.Sum()/1000;
         var total2 = (DateTime.Now - now).TotalSeconds;
         var phase_1_2_res = Test(clusters);
+
+        var cluster0_ = transactionOut.Where(x => x.ClusterId == 0);
+        var cluster2_ = transactionOut.Where(x => x.ClusterId == 2);
+        var cluster10_ = transactionOut.Where(x => x.ClusterId == 10);
+        var cluster21 = transactionOut.Where(x => x.ClusterId == 21);
+        var cluster22 = transactionOut.Where(x => x.ClusterId == 22);
         return clusters;
     }
 
